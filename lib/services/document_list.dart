@@ -25,7 +25,6 @@ Future<ApiResponse> getDocument(String? token) async {
     switch(response.statusCode){
       case 200:
         apiResponse.data = jsonDecode(response.body)['tasks'];
-        print(apiResponse.data);
         break;
       case 422:
         final errors = jsonDecode(response.body)['message'];

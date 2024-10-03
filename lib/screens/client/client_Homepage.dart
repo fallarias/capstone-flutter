@@ -77,7 +77,7 @@ class _ClientHomepageState extends State<ClientHomepage> {
   Widget _buildNotificationPage() {
     return const Center(
       child: Text(
-        'Notificationss',
+        'Notifications',
         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
       ),
     );
