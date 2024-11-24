@@ -36,7 +36,8 @@ Future<void> _saveAndRedirectToHome(User user) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('token', user.token ?? '');
   await prefs.setInt('userId', user.id ?? 0);
-  await prefs.setString('account_type', user.account_type ?? ''); 
+  await prefs.setString('account_type', user.account_type ?? '');
+  await prefs.setString('department', user.department ?? '');
 
   Widget homepage;
   switch (user.account_type) {
@@ -212,6 +213,7 @@ Future<void> _saveAndRedirectToHome(User user) async {
                 const Text('Show Password', style: TextStyle(color: Colors.green)),
               ],
             ),
+            /*
             TextButton(
               onPressed: () {
                 Navigator.pushReplacement(
@@ -221,7 +223,7 @@ Future<void> _saveAndRedirectToHome(User user) async {
               },
 
               child: const Text('Forgot Password?', style: TextStyle(color: Colors.green)),
-            ),
+            ), */
           ],
         ),
       ],

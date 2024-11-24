@@ -29,10 +29,11 @@ class TrackOrderScreenState extends State<TrackOrderScreen> {
     ApiResponse apiResponse = ApiResponse();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String taskId = prefs.getString('taskId') ?? '';
+    String userId = prefs.getInt('userId').toString();
 
     try {
       final response = await http.get(
-        Uri.parse('$ipaddress/template_history/$taskId'),
+        Uri.parse('$ipaddress/template_history/$taskId/${userId.toString()}'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -194,7 +195,7 @@ class OrderStatusWidget extends StatelessWidget {
               Text('Status: ${item.Status}'),
               Text('Office: ${item.officeName}'),
               Text('Task: ${item.officeTask}'),
-              Text('Alloted Time: ${item.newAllotedTime}'),
+              Text('Allotted Time: ${item.newAllotedTime} ${item.newAllotedTime == "1" ? "hour" : "hours"}'),
             ],
           ),
         ),

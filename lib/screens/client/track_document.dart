@@ -17,6 +17,7 @@ class TrackDocument extends StatefulWidget {
 
 class _DocumentState extends State<TrackDocument> {
   List<dynamic> tasks = [];
+  List<dynamic> transaction = [];
   bool isLoading = true;
   String token = '';
 
@@ -35,7 +36,12 @@ class _DocumentState extends State<TrackDocument> {
     setState(() {
       isLoading = false; // Update loading state here
       if (response.error == null) {
-        tasks = response.data as List<dynamic>;
+        final data = response.data as Map<String, dynamic>;
+        tasks = data['tasks'] as List<dynamic>;
+        transaction = data['transactions'] as List<dynamic>;
+
+        // Save all task IDs to SharedPreferences
+        //_saveAllTaskIds(tasks);
       } else {
         print('${response.error}');
       }
@@ -51,7 +57,17 @@ class _DocumentState extends State<TrackDocument> {
         : Column(
       children: tasks.map((task) {
         return ListTile(
-          title: Text(task['name']),
+          title: Row(
+            children: [
+              Text(
+                transaction.isNotEmpty
+                    ? transaction[0]['transaction_id'].toString()
+                    : 'No Transaction', // Transaction ID or fallback text
+              ), // Transaction ID on the right
+              const SizedBox(width: 15), // Fixed spacing of 15px
+              Text(task['name']), // Task name on the left
+            ],
+          ),
           onTap: () async {
             SharedPreferences prefs = await SharedPreferences.getInstance();
             await prefs.setString('taskId', task['task_id'].toString());

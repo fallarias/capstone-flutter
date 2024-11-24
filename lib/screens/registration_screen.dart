@@ -161,7 +161,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   items: [
                     {'display': 'Client', 'value': 'client'},
                     {'display': 'Office Staff', 'value': 'office staff'},
-                    {'display': 'Supplier', 'value': 'supplier'},
+                    //{'display': 'Supplier', 'value': 'supplier'},
                   ].map((item) {
                     return DropdownMenuItem<String>(
                       value: item['value'],

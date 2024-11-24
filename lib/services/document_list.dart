@@ -24,7 +24,15 @@ Future<ApiResponse> getDocument(String? token) async {
 
     switch(response.statusCode){
       case 200:
-        apiResponse.data = jsonDecode(response.body)['tasks'];
+        final data = jsonDecode(response.body);
+        final tasks = data['tasks']; // Extract tasks
+        final transactions = data['transactions']; // Extract transactions
+
+        // Now you can assign them to your API response object
+        apiResponse.data = {
+          'tasks': tasks,
+          'transactions': transactions,
+        };
         break;
       case 422:
         final errors = jsonDecode(response.body)['message'];

@@ -40,17 +40,7 @@ Future<void> downloadPdf(BuildContext context, String url, String fileName, Stri
   String qrCodePdfPath = '${directory.path}/$fileName-QRCode.pdf';
   String downloadedPdfPath = '${directory.path}/$fileName.pdf'; // Separate name for the downloaded PDF
 
-  // Check if the QR code PDF already exists
-  if (await File(qrCodePdfPath).exists()) {
-    // Show a snackbar to inform the user
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("QR Code PDF already exists. You cannot download it again."),
-        duration: Duration(seconds: 3),
-      ),
-    );
-    return; // Prevent duplicate download
-  }
+
 
   try {
     String userDetails = jsonEncode({'userId': userId, 'taskId': id});
