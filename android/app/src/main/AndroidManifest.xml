@@ -69,8 +69,12 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:label="ISU-CANNER"
+<<<<<<< HEAD
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         android:requestLegacyExternalStorage="true">
+=======
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+>>>>>>> main
 
         <activity android:name="io.flutter.embedding.android.FlutterActivity"
             android:launchMode="singleTop"

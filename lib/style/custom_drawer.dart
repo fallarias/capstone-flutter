@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:isu_canner/screens/office_staff/notification_Transaction.dart';
 import '../screens/client/track_document.dart';
 import '../services/logout.dart';
 import 'task_list_widget.dart';
+=======
+import 'task_list_widget.dart'; 
+>>>>>>> main
 
 class ClientCustomDrawer extends StatelessWidget {
   @override
@@ -13,6 +17,7 @@ class ClientCustomDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
+<<<<<<< HEAD
           SizedBox(
             height: 160,
             child: DrawerHeader(
@@ -85,6 +90,41 @@ class ClientCustomDrawer extends StatelessWidget {
                 ),
               ),
             ),
+=======
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.green,
+            ),
+            child: Text(
+              'Drawer Header',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+              ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.menu_open_sharp),
+            title: const Text('ACTIONS'),
+            onTap: () {
+              // Handle the tap here
+            },
+          ),
+          // Template section with dropdown
+          const ExpansionTile(
+            leading: Icon(Icons.content_copy),
+            title: Text('TEMPLATE'),
+            children: <Widget>[
+              TaskListWidget(),
+            ],
+          ),
+          ListTile(
+            leading: const Icon(Icons.fact_check),
+            title: const Text('TRACK DOCUMENT'),
+            onTap: () {
+              // Handle the tap here
+            },
+>>>>>>> main
           ),
           // TEMPLATE section with a container
           Container(
