@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,11 +8,14 @@ import 'package:http/http.dart' as http;
 
 class MessageDetailScreen extends StatefulWidget {
   final String title;
-  final String message;
+  final String task;
   final String date;
   final String office;
+  final String start;
+  final String deadline;
 
-  MessageDetailScreen({required this.title, required this.message, required this.date, required this.office});
+  MessageDetailScreen({required this.title, required this.task, required this.date,
+                      required this.office, required this.start, required this.deadline});
 
   @override
   _MessageDetailScreenState createState() => _MessageDetailScreenState();
@@ -26,6 +29,7 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
   bool canResume = false;
   bool isFinishing = false;
   bool isTaskFinished = false;
+  bool isStopFinished = false;
 
   @override
   void initState() {
@@ -37,6 +41,8 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
     _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
     checkResumeTransaction();
     loadTaskStatus();
+    resetStateForNewMessage();
+    _listenForTaskStatusChanges();
   }
 
   @override
@@ -63,7 +69,7 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
 
             // "From: (office)"
             Text(
-              'From: ${widget.office}',
+              'To: ${widget.office}',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             SizedBox(height: 20),
@@ -75,7 +81,15 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
             SizedBox(height: 10),
             // The message content
             Text(
-              widget.message,
+              'Task: ${widget.task}',
+              style: TextStyle(fontSize: 16),
+            ),
+            Text(
+              'Starting Time: ${widget.start}',
+              style: TextStyle(fontSize: 16),
+            ),
+            Text(
+              'Deadline Time: ${widget.deadline}',
               style: TextStyle(fontSize: 16),
             ),
             Center(
@@ -88,10 +102,15 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
                       width: 200,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: isTaskFinished ? Colors.grey : Colors.blue, // Grey if disabled
+                          backgroundColor: isStopFinished || canResume ? Colors.grey : Colors.blue,
                           disabledBackgroundColor: Colors.grey,
                         ),
-                        onPressed: isTaskFinished ? null : () => _showPopupForm(context),
+                        onPressed: isStopFinished
+                            ? null
+                            : () {
+                          _showPopupForm(context);
+
+                        },
                         child: const Text('Stop Transaction'),
                       ),
                     ),
@@ -100,14 +119,21 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
                       width: 200,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: canResume ? Colors.blue : Colors.grey, // Change button color based on state
-                          disabledBackgroundColor: Colors.grey, // Optional: Set the disabled color
+                          backgroundColor: canResume && !isResuming ? Colors.blue : Colors.grey,
+                          disabledBackgroundColor: Colors.grey,
                         ),
-                        onPressed: canResume && !isResuming ? resumeTransaction : null, // Disable button if cannot resume or is already resuming
+                        onPressed: canResume && !isResuming
+                            ? () {
+                          resumeTransaction();
+                          setState(() {
+                            canResume = false; // Disable Resume Transaction
+                            isTaskFinished = true; // Ensure Stop Transaction is disabled
+                          });
+                        }
+                            : null,
                         child: const Text('Resume Transaction'),
                       ),
-                    ),
-                    SizedBox(height: 10), // Add spacing between buttons
+                    ), // Add spacing between buttons
                     SizedBox(
                       width: 200,
                       child: ElevatedButton(
@@ -163,11 +189,14 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
             ),
             TextButton(
               onPressed: () async {
-                await _saveToDatabase(
-                  messageController.text,
-                );
+                await _saveToDatabase(messageController.text);
                 messageController.clear();
                 Navigator.of(context).pop();
+
+                setState(() {
+                  canResume = true; // Enable Resume Transaction button
+                  isTaskFinished = true; // Stop Transaction now considered as in-progress
+                });
               },
               child: const Text('Submit'),
             ),
@@ -178,9 +207,12 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
   }
 
   Future<void> _saveToDatabase(String message) async {
+
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String? transactionId = prefs.getString('transaction_id');
+    String? auditId = prefs.getString('audit_id');
     final String? department = prefs.getString('department');
     try {
       final response = await http.post(
@@ -197,6 +229,23 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         print('API Response: $data');
+
+        await saveTaskStatus(finished: false, resume: true, stop: true); // Save consistent states
+
+        setState(() {
+          canResume = true; // Enable Resume Transaction button
+          isTaskFinished = false; // Ensure task is not marked finished
+          isStopFinished = true; // Mark Stop Transaction as finished
+        });
+        // Save that stop transaction is finished
+        await prefs.setBool('isStopFinished_$auditId', true);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Message saved successfully.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
       } else if (response.statusCode == 409) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -214,13 +263,15 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
 
   Future<void> resumeTransaction() async {
     setState(() {
-      isResuming = true; // Disable the button when clicked
+      isResuming = true; // Disable the Resume button while processing
     });
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String? transactionId = prefs.getString('transaction_id');
+    String? auditId = prefs.getString('audit_id');
     final String? department = prefs.getString('department');
+
     try {
       final response = await http.post(
         Uri.parse('$ipaddress/resume_transaction/${transactionId.toString()}/${department.toString()}'),
@@ -233,10 +284,22 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         print('API Response: $data');
+
+        await saveTaskStatus(finished: false, resume: false, stop: true);
+        // Save that stop transaction is finished
+        await prefs.setBool('isStopFinished_$auditId', true);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task Resume Successfully.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+
       } else if (response.statusCode == 409) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Already resumed the transaction. Resuming transaction does not allowed.'),
+            content: Text('Transaction already resumed. Resuming not allowed.'),
             duration: Duration(seconds: 3),
           ),
         );
@@ -247,7 +310,7 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
       print('Something went wrong: $e');
     } finally {
       setState(() {
-        isResuming = false; // Re-enable the button after the process completes
+        isResuming = false; // Re-enable Resume button after processing
       });
     }
   }
@@ -332,11 +395,14 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
 
       if (response.statusCode == 200) {
         // Mark the task as finished
-        await prefs.setBool('isTaskFinished', true);
-        if (mounted) {
-          setState(() {
-            isTaskFinished = true;
-          });
+        await saveTaskStatus(finished: true, resume: false, stop: true);
+        // Save that stop transaction is finished
+        await prefs.setBool('isStopFinished_$auditId', true);
+         if (mounted) {
+           setState(() {
+             isTaskFinished = true; // Disable Finish Task button
+             isStopFinished = true; // Disable Stop Transaction button
+           });
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -373,10 +439,18 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
 
   Future<void> resetTaskStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isTaskFinished', false);
+    String? auditId = prefs.getString('audit_id'); // Use auditId instead of transactionId
+
+    await prefs.remove('isTaskFinished_$auditId');
+    await prefs.remove('canResume_$auditId');
+    await prefs.remove('isStopFinished_$auditId');
+
     setState(() {
-      isTaskFinished = false;
+      isTaskFinished = false; // Re-enable Stop Transaction
+      canResume = false; // Disable Resume Transaction
+      isStopFinished = false; // Disable Stop Transaction button
     });
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Task status has been reset to not finished.'),
@@ -415,10 +489,76 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
 
   Future<void> loadTaskStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? auditId = prefs.getString('audit_id');
+
+    if (auditId != null) {
+      setState(() {
+        isTaskFinished = prefs.getBool('isTaskFinished_$auditId') ?? false;
+        canResume = prefs.getBool('canResume_$auditId') ?? false;
+        isStopFinished = prefs.getBool('isStopFinished_$auditId') ?? false;
+      });
+      print('Task Status - Finished: $isTaskFinished, Resume: $canResume, Stop: $isStopFinished');
+    } else {
+      print('Audit ID is null, cannot load task status.');
+    }
+  }
+
+
+  Future<void> saveTaskStatus({required bool finished, required bool resume, required bool stop}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? auditId = prefs.getString('audit_id'); // Unique identifier for the task
+
+    if (auditId != null) {
+      await prefs.setBool('isTaskFinished_$auditId', finished);
+      await prefs.setBool('canResume_$auditId', resume);
+      await prefs.setBool('isStopFinished_$auditId', stop);
+    }
+
     setState(() {
-      isTaskFinished = prefs.getBool('isTaskFinished') ?? false;
+      isTaskFinished = finished;
+      canResume = resume;
+      isStopFinished = stop;
+    });
+    print('Task Status - Finished: $isTaskFinished, Resume: $canResume, Stop: $isStopFinished');
+  }
+
+
+  void resetStateForNewMessage() {
+    // Call this only for a new task, not during navigation back.
+    setState(() {
+      isTaskFinished = false;
+      canResume = false;
+      isStopFinished = false;
     });
   }
+
+
+  void _listenForTaskStatusChanges() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? auditId = prefs.getString('audit_id');
+
+    Timer.periodic(const Duration(seconds: 10), (timer) async {
+      bool? storedTaskFinished = prefs.getBool('isTaskFinished_$auditId') ?? false;
+      bool? storedCanResume = prefs.getBool('canResume_$auditId') ?? false;
+      bool? storedStopFinished = prefs.getBool('isStopFinished_$auditId') ?? false;
+
+      if (mounted) {
+        setState(() {
+          // Only update the state if the stored values differ from the current ones
+          if (isTaskFinished != storedTaskFinished) {
+            isTaskFinished = storedTaskFinished;
+          }
+          if (canResume != storedCanResume) {
+            canResume = storedCanResume;
+          }
+          if (isStopFinished != storedStopFinished) {
+            isStopFinished = storedStopFinished;
+          }
+        });
+      }
+    });
+  }
+
 
 }
 

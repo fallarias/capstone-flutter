@@ -5,21 +5,33 @@ import 'package:intl/intl.dart'; // Import intl package
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../variables/ip_address.dart';
 import 'messageScreen.dart';
+import 'office_message.dart';
 
 class NotificationTransaction extends StatefulWidget {
   @override
-  State<NotificationTransaction> createState() => _NotificationTransaction();
+  State<NotificationTransaction> createState() =>
+      _NotificationTransactionState();
 }
 
-class _NotificationTransaction extends State<NotificationTransaction> {
+class _NotificationTransactionState extends State<NotificationTransaction>
+    with SingleTickerProviderStateMixin {
   List<dynamic> notifications = [];
+  List<dynamic> messages = [];
   bool isLoading = true;
   String errorMessage = '';
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     _checkForUpdates();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _checkForUpdates() async {
@@ -45,13 +57,40 @@ class _NotificationTransaction extends State<NotificationTransaction> {
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
+      final Map<String, dynamic> data = json.decode(response.body);
+      final List<dynamic> transactions = data['transactions'] ?? [];
+      final List<dynamic> message = data['message'] ?? [];
+
+      // Save data in SharedPreferences
+      await prefs.setString('notifications', json.encode(transactions));
+      await prefs.setString('messages', json.encode(message));
+
       setState(() {
-        notifications = data
+        notifications = transactions
             .where((task) => task['office_name'] == department)
+            .toList();
+        messages = message
+            .where((task) => task['target_department'] == department)
             .toList();
         isLoading = false;
       });
+
+      // Notify MessageDetailScreen if there are new messages
+      if (notifications.isNotEmpty) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? auditId = prefs.getString('audit_id');
+
+        if (auditId != null) {
+          bool? isFinished = prefs.getBool('isTaskFinished_$auditId');
+          if (isFinished == null) {
+            // Set default values only if no state exists
+            await prefs.setBool('isTaskFinished_$auditId', false);
+            await prefs.setBool('canResume_$auditId', false);
+            await prefs.setBool('isStopFinished_$auditId', false);
+          }
+        }
+      }
+
     } else {
       setState(() {
         isLoading = false;
@@ -73,65 +112,148 @@ class _NotificationTransaction extends State<NotificationTransaction> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Messages')),
+      appBar: AppBar(
+        title: Text('Messages'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(text: 'Transaction Messages'),
+            Tab(text: 'Office Messages'),
+          ],
+        ),
+      ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
-          : notifications.isEmpty && errorMessage.isEmpty
-          ? Center(child: Text('No notifications available.'))
-          : errorMessage.isNotEmpty
-          ? Center(child: Text(errorMessage))
-          : ListView.builder(
-        itemCount: notifications.length,
-        itemBuilder: (context, index) {
-          final notification = notifications[index];
-          final title = "Transaction No.  " + notification['transaction_id'].toString();
-          final office = notification['office_name'] ?? 'Unknown';
-          // Format start and deadline times with AM/PM
-          final startTime = formatDateTime(notification['start'] ?? '');
-          final deadlineTime = formatDateTime(notification['deadline'] ?? '');
-
-          final message = 'The new transaction starting at $startTime and the deadline at $deadlineTime';
-          final date = notification['created_at'] ?? 'Today';
-
-          return GestureDetector(
-            onTap: () async {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              await prefs.setString('transaction_id', notification['transaction_id'].toString());
-              await prefs.setString('audit_id', notification['audit_id'].toString());
-              // Navigate to the MessageDetailScreen
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MessageDetailScreen(
-                    title: title,
-                    message: message,
-                    date: date,
-                    office: office,
-                  ),
-                ),
-              );
-            },
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.grey[300],
-                child: Icon(Icons.person, color: Colors.white),
-              ),
-              title: Text(
-                title,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                message,
-                overflow: TextOverflow.ellipsis,
-              ),
-              trailing: Text(
-                date,
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-          );
-        },
+          : TabBarView(
+        controller: _tabController,
+        children: [
+          _buildNotificationList(),
+          _buildMessageList(),
+        ],
       ),
+    );
+  }
+
+  Widget _buildNotificationList() {
+    if (errorMessage.isNotEmpty) {
+      return Center(child: Text(errorMessage));
+    }
+    if (notifications.isEmpty) {
+      return Center(child: Text('No notifications available.'));
+    }
+
+    return ListView.builder(
+      itemCount: notifications.length,
+      itemBuilder: (context, index) {
+        final notification = notifications[index];
+        final title =
+            "Transaction No. " + notification['transaction_id'].toString();
+        final office = notification['office_name'] ?? 'Unknown';
+        final startTime = formatDateTime(notification['start'] ?? '');
+        final deadlineTime = formatDateTime(notification['deadline'] ?? '');
+        final task = notification['task'] ?? '';
+        final date = formatDateTime(notification['created_at'] ?? 'Today');
+
+        return GestureDetector(
+          onTap: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setString(
+                'transaction_id', notification['transaction_id'].toString());
+            await prefs.setString(
+                'audit_id', notification['audit_id'].toString());
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MessageDetailScreen(
+                  title: title,
+                  task: task,
+                  date: date,
+                  office: office,
+                  start: startTime,
+                  deadline: deadlineTime,
+                ),
+              ),
+            );
+          },
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.grey[300],
+              child: Icon(Icons.person, color: Colors.white),
+            ),
+            title: Text(
+              title,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              task,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: Text(
+              date,
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMessageList() {
+    if (errorMessage.isNotEmpty) {
+      return Center(child: Text(errorMessage));
+    }
+    if (messages.isEmpty) {
+      return Center(child: Text('No messages available.'));
+    }
+
+    return ListView.builder(
+      itemCount: messages.length,
+      itemBuilder: (context, index) {
+        final message = messages[index];
+        final title = message['department'] ?? 'No Title';
+        final target_department = message['target_department'] ?? 'Unknown Department';
+        final department = message['department'] ?? 'Unknown Department';
+        final messageText = message['message'] ?? 'No Message';
+        final sentTime = formatDateTime(message['created_at'] ?? 'Today');
+
+        return GestureDetector(
+          onTap: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setString('message_id', message['id'].toString());
+            await prefs.setString('department', department);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MessageOfficeScreen(
+                  title: title,
+                  target_office: target_department,
+                  office: department,
+                  message: messageText,
+                  date: sentTime,
+                ),
+              ),
+            );
+          },
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.blue[300],
+              child: Icon(Icons.message, color: Colors.white),
+            ),
+            title: Text(
+              title,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              messageText,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: Text(
+              sentTime,
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        );
+      },
     );
   }
 }

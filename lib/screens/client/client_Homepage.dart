@@ -7,11 +7,6 @@ import '../../style/custom_app_bar.dart';
 import '../../style/custom_bottom_navigation.dart';
 import '../../style/custom_drawer.dart';
 import '../../style/menu_page.dart';
-<<<<<<< HEAD
-=======
-
-
->>>>>>> main
 import '../../model/user.dart';
 import '../../services/logout.dart';
 import '../../variables/ip_address.dart';
@@ -351,22 +346,8 @@ class _ClientHomepageState extends State<ClientHomepage> {
     );
   }
 
-<<<<<<< HEAD
   Widget _buildMenuPage() {
     return MenuPage(
-=======
-  Widget _buildNotificationPage() {
-    return const Center(
-      child: Text(
-        'Notifications',
-        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  Widget _buildMenuPage() {
-    return MenuPage( 
->>>>>>> main
       onLogoutSelected: () async {
         await logout(context);
       },

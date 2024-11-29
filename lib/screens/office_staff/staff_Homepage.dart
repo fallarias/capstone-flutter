@@ -1,12 +1,17 @@
+import 'dart:convert';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:isu_canner/screens/home_screen.dart';
 import 'package:isu_canner/services/logout.dart';
 import 'package:isu_canner/model/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../style/custom_app_bar.dart';
 import '../../style/custom_drawer.dart';
+import '../../variables/ip_address.dart';
 import '../client/welcome_popUp.dart';
 import '../office_staff/qr_scanner.dart';
+import 'package:http/http.dart' as http;
 
 class StaffHomepage extends StatefulWidget {
   final User user;
@@ -21,13 +26,19 @@ class _StaffHomepageState extends State<StaffHomepage> {
   final TextEditingController toController = TextEditingController();
   final TextEditingController messageController = TextEditingController();
   final TextEditingController idController = TextEditingController();
+  List<String> officeList = [];
+  String? selectedTo;
 
   @override
   void initState() {
     super.initState();
+    _fetchAllOffice();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showWelcomePopup();
     });
+    
+    print("Calling _fetchAllOffice...");
+
   }
 
   void _showWelcomePopup() {
@@ -40,69 +51,6 @@ class _StaffHomepageState extends State<StaffHomepage> {
     );
   }
 
-  void _showPopupForm(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Enter Details'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: toController,
-                decoration: const InputDecoration(labelText: 'To'),
-              ),
-              TextField(
-                controller: messageController,
-                decoration: const InputDecoration(labelText: 'Message'),
-              ),
-              TextField(
-                controller: idController,
-                decoration: const InputDecoration(labelText: 'ID'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                await _saveToDatabase(
-                  toController.text,
-                  messageController.text,
-                  idController.text,
-                );
-                // Clear the controllers after submission
-                toController.clear();
-                messageController.clear();
-                idController.clear();
-
-                Navigator.of(context).pop();
-              },
-              child: const Text('Submit'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _saveToDatabase(String to, String message, String id) async {
-    // Add database code here, e.g., using Firebase Firestore:
-    /*
-    await FirebaseFirestore.instance.collection('messages').add({
-      'to': to,
-      'message': message,
-      'id': id,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
-    */
-  }
 
   Widget _buildStatusContainer(String title, String count, {double verticalOffset = -30.0}) {
     return Flexible(
@@ -131,7 +79,7 @@ class _StaffHomepageState extends State<StaffHomepage> {
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 40,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
@@ -252,126 +200,278 @@ class _StaffHomepageState extends State<StaffHomepage> {
     );
   }
 
-
-
-
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: StaffCustomAppBar(),
-      drawer: StaffCustomDrawer(),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.white, Colors.white],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView( // Allow scrolling
-            child: Column(
-              children: [
-                GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 8.0,
-                  mainAxisSpacing: 5.0,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    _buildStatusContainer("9", "Pending"),
-                    _buildStatusContainer("2", "Task completed"),
-
-                    // Add more containers as needed
-                  ],
+    return FutureBuilder<StatusCounts>(
+      future: fetchStatusCounts(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Error: ${snapshot.error}"));
+        } else if (snapshot.hasData) {
+          final statusCounts = snapshot.data!;
+          return Scaffold(
+            appBar: StaffCustomAppBar(),
+            drawer: StaffCustomDrawer(),
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.white, Colors.white],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                _buildAreaChart(), // Change this line
-
-              ],
-            ),
-          ),
-        ),
-      ),
-
-
-
-      floatingActionButton: Container(
-        width: 80,
-        height: 80,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.black,
-            width: 1.0,
-          ),
-        ),
-        child: FloatingActionButton(
-          onPressed: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const QRScannerPage(),
               ),
-            );
-
-            if (result != null) {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text("Scanned QR Code"),
-                  content: Text(result),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("OK"),
-                    ),
-                  ],
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      GridView.count(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 8.0,
+                        mainAxisSpacing: 5.0,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [
+                          _buildStatusContainer("Pending", statusCounts.pending),
+                          _buildStatusContainer("Task Completed", statusCounts.completed),
+                        ],
+                      ),
+                      _buildAreaChart(),
+                      SizedBox(
+                        width: 200,
+                        child: ElevatedButton(
+                          onPressed: () => _showPopupForm(context), // Wrap in a lambda function
+                          child: const Text('Send Message'),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                    ],
+                  ),
                 ),
-              );
-            }
-          },
-          backgroundColor: Colors.grey,
-          elevation: 4.0,
-          shape: const CircleBorder(),
-          child: const Icon(
-            Icons.qr_code_scanner_rounded,
-            size: 50.0,
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.home, size: 35),
-              onPressed: () {
-                // Handle home press
-              },
+              ),
             ),
-            const SizedBox(width: 40),
-            IconButton(
-              icon: const Icon(Icons.person, size: 35),
+            floatingActionButton: FloatingActionButton(
               onPressed: () async {
-                await logout(context);
-                Navigator.push(
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (BuildContext context) {
-                      return HomeScreen();
-                    },
+                    builder: (context) => const QRScannerPage(),
                   ),
                 );
+
+                if (result != null) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Scanned QR Code"),
+                      content: Text(result),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("OK"),
+                        ),
+                      ],
+                    ),
+                  );
+                }
               },
+              backgroundColor: Colors.grey,
+              elevation: 4.0,
+              child: const Icon(
+                Icons.qr_code_scanner_rounded,
+                size: 50.0,
+              ),
+            ),
+          );
+        } else {
+          return const Center(child: Text("No data available"));
+        }
+      },
+    );
+  }
+
+  Future<void> _fetchAllOffice() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    final String? department = prefs.getString('department');
+    print('Fetching office list...');
+
+    final response = await http.get(
+      Uri.parse('$ipaddress/all_office/${department.toString()}'),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print('Response Status: ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        officeList = data.cast<String>();
+      });
+      print(response.body);
+    } else {
+      print('Failed to load office list: ${response.statusCode} ${response.body}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${response.statusCode}')),
+      );
+      setState(() {
+        officeList = [];
+      });
+    }
+  }
+
+  void _showPopupForm(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Enter Details'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                value: selectedTo,
+                items: officeList.map((option) {
+                  return DropdownMenuItem<String>(
+                    value: option,
+                    child: Text(option),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedTo = value!;
+                  });
+                },
+                decoration: const InputDecoration(labelText: 'To:'),
+              ),
+              TextField(
+                controller: messageController,
+                decoration: const InputDecoration(labelText: 'Message:'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (selectedTo != null) {
+                  await _saveToDatabase(
+                    selectedTo!,
+                    messageController.text,
+                  );
+                  // Clear the controllers after submission
+                  messageController.clear();
+
+                  Navigator.of(context).pop();
+                } else {
+                  // Handle validation if no option is selected
+                  print('Please select an option');
+                }
+              },
+              child: const Text('Submit'),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
+  }
+
+  Future<void> _saveToDatabase(String to, String message) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    final String? department = prefs.getString('department');
+    try {
+      final response = await http.post(
+        Uri.parse('$ipaddress/message_office/${department.toString()}'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: {
+          'message': message,
+          'target_department': to,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        print('API Response: $data');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Message saved successfully.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else if (response.statusCode == 409) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Transaction already exists. Resuming transaction does not allowed.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        print('Failed to create transaction. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Something went wrong: $e');
+    }
+  }
+
+}
+
+
+
+class StatusCounts {
+  final String pending;
+  final String completed;
+
+
+  StatusCounts({
+    required this.pending,
+    required this.completed,
+
+  });
+
+  factory StatusCounts.fromJson(Map<String, dynamic> json) {
+    return StatusCounts(
+      pending: json['pending'].toString(),
+      completed: json['completed'].toString(),
+
+    );
+  }
+}
+
+Future<StatusCounts> fetchStatusCounts() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String userId = prefs.getInt('userId').toString();
+  String? token = prefs.getString('token');
+
+  final response = await http.get(
+    Uri.parse('$ipaddress/staff_chart/${userId.toString()}'),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    return StatusCounts.fromJson(json.decode(response.body));
+  } else {
+    print('Failed to load data: ${response.statusCode} ${response.body}');
+    throw Exception('Failed to load status counts');
   }
 }
