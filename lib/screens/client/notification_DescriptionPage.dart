@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
 import '../../variables/ip_address.dart';
+import 'LackRequirements.dart';
 import 'MessageUnreadRead.dart';
 
 class NotificationDescriptionPage extends StatefulWidget {
@@ -26,7 +27,6 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
     super.initState();
     _loadReadItems();
     _checkForUpdates();
-    _loadCachedUnfinished();
   }
 
   Future<void> _loadReadItems() async {
@@ -41,15 +41,6 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('readItems', jsonEncode(readItems.toList()));
   }
-
-  Future<void> _loadCachedUnfinished() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final cachedUnfinishedString = prefs.getString('cachedUnfinished') ?? '[]';
-    setState(() {
-      unfinished = jsonDecode(cachedUnfinishedString);
-    });
-  }
-
 
   Future<void> _checkForUpdates() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -76,25 +67,6 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         print('Response Data: $data');
-
-        // Retrieve the locally cached unfinished items
-        final cachedUnfinishedString = prefs.getString('cachedUnfinished') ?? '[]';
-        final List<dynamic> cachedUnfinished = jsonDecode(cachedUnfinishedString);
-
-        // Parse new unfinished items from the response
-        final List<dynamic> newUnfinished = (data['UnfinishedAudits'] as List)
-            .where((unfinish) => unfinish['finished'] == null && unfinish['start'] != null)
-            .toList();
-
-        // Merge the cached and new unfinished items
-        final mergedUnfinished = [...cachedUnfinished, ...newUnfinished];
-
-        // Remove duplicates based on a unique identifier, e.g., transaction_id
-        final uniqueUnfinished = {for (var item in mergedUnfinished) item['transaction_id']: item}.values.toList();
-
-        // Save the updated unfinished list to SharedPreferences
-        await prefs.setString('cachedUnfinished', jsonEncode(uniqueUnfinished));
-
         setState(() {
           notifications = (data['finishedAudits'] as List)
               .where((task) => task['finished'] != null && task['finished'] is String)
@@ -102,8 +74,9 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
           messages = (data['messages'] as List)
               .where((stop) => stop['message'] != null && stop['department'] is String)
               .toList();
-          unfinished = uniqueUnfinished;
-          unreadItems = (messages.length + notifications.length + unfinished.length) - readItems.length;
+          print('Unfinished Audits: ${data['UnfinishedAudits']}');
+
+          unreadItems = (messages.length + notifications.length) - readItems.length;
           errorMessage = '';
           isLoading = false;
         });
@@ -122,7 +95,6 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
       });
     }
   }
-
 
   String formatDateTime(String? dateTime) {
     if (dateTime == null) return 'Invalid date';
@@ -174,10 +146,13 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MessageNotificationScreen(
-          title: 'Kulang na requirements',
+        builder: (context) => LackRequirementsScreen(
+          title: "Transaction No.  " + message['transaction_id'].toString(),
+          startTime: formatDateTime(message['start']),
+          deadlineTime: formatDateTime(message['deadline'] ?? ''),
+          finishTime: formatDateTime(message['finished'] ?? ''),
           message: message['message'] ?? 'No message', // Fallback if message is null
-          date: message['created_at'] ?? 'Today', // Fallback if date is null
+          date: formatDateForDisplay(message['created_at']) ?? 'Today', // Fallback if date is null
           office: message['department'],
         ),
       ),
@@ -200,33 +175,12 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
       MaterialPageRoute(
         builder: (context) => MessageNotificationScreen(
           title: "Transaction No.  " + notification['transaction_id'].toString(),
+          startTime: formatDateTime(notification['start']),
+          deadlineTime: formatDateTime(notification['deadline'] ?? ''),
+          finishTime: formatDateTime(notification['finished'] ?? ''),
           message: 'Transaction starting at ${formatDateTime(notification['start'])} with a deadline of ${formatDateTime(notification['deadline'])}',
-          date: notification['created_at'] ?? 'Today', // Fallback if date is null
+          date: formatDateForDisplay(notification['created_at']) ?? 'Today', // Fallback if date is null
           office: notification['office_name'],
-        ),
-      ),
-    );
-  }
-
-  void _onUnfinishNotificationTap(dynamic unFinish, int index) {
-    final int unFinishId = index + unfinished.length;
-
-    if (!readItems.contains(unFinishId)) {
-      setState(() {
-        unreadItems--;
-        readItems.add(unFinishId);
-        _saveReadItems();
-      });
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MessageNotificationScreen(
-          title: "Transaction No.  " + unFinish['transaction_id'].toString(),
-          message: 'Transaction starting at ${formatDateTime(unFinish['start'])} with a deadline of ${formatDateTime(unFinish['deadline'])}',
-          date: unFinish['created_at'] ?? 'Today', // Fallback if date is null
-          office: unFinish['office_name'],
         ),
       ),
     );
@@ -235,8 +189,6 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
   Widget buildMessageTile(dynamic message, int index) {
     final date = formatDateForDisplay(message['created_at']);
     final officeName = "Transaction No.  " + message['transaction_id'].toString();
-    final req = 'Lack Requirement';
-
     return GestureDetector(
       onTap: () => _onMessageTap(message, index),
       child: ListTile(
@@ -245,7 +197,7 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
           child: Icon(Icons.message, color: Colors.white),
         ),
         title: Text(officeName, style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(req, overflow: TextOverflow.ellipsis),
+        subtitle: Text('Lack of Requirements', overflow: TextOverflow.ellipsis),
         trailing: Text(date, style: TextStyle(color: Colors.grey)),
         tileColor: readItems.contains(index) ? Colors.white : Colors.grey[300],
       ),
@@ -255,7 +207,6 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
   Widget buildNotificationTile(dynamic notification, int index) {
     final date = formatDateForDisplay(notification['created_at']);
     final officeName = "Transaction No.  " + notification['transaction_id'].toString();
-    final message = 'New Message';
     return GestureDetector(
       onTap: () => _onNotificationTap(notification, index),
       child: ListTile(
@@ -264,32 +215,13 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
           child: Icon(Icons.notifications, color: Colors.white),
         ),
         title: Text(officeName, style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(message, overflow: TextOverflow.ellipsis),
+        subtitle: Text('New Message', overflow: TextOverflow.ellipsis),
         trailing: Text(date, style: TextStyle(color: Colors.grey)),
         tileColor: readItems.contains(index + messages.length) ? Colors.white : Colors.grey[300],
       ),
     );
   }
 
-  Widget buildUnfinishedTile(dynamic unfinishedItem, int index) {
-    final date = formatDateForDisplay(unfinishedItem['created_at']);
-    final startTime = formatDateTime(unfinishedItem['start']);
-    final message = 'New Update';//'Unfinished audit started at $startTime.';
-    final officeName = "Transaction No.  " + unfinishedItem['transaction_id'].toString();
-
-    return GestureDetector(
-      onTap: () => _onUnfinishNotificationTap(unfinishedItem, index),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.grey[300],
-          child: Icon(Icons.warning, color: Colors.white),
-        ),
-        title: Text(officeName, style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(message, overflow: TextOverflow.ellipsis),
-        trailing: Text(date, style: TextStyle(color: Colors.grey)),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -330,26 +262,26 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
           : errorMessage.isNotEmpty
           ? Center(child: Text(errorMessage))
           : ListView.builder(
-                itemCount: messages.length + notifications.length + unfinished.length,
-                itemBuilder: (context, index) {
-                  final reversedIndex = (messages.length + notifications.length + unfinished.length) - index - 1;
+        itemCount: messages.length + notifications.length,
+        itemBuilder: (context, index) {
+          final reversedIndex = (messages.length + notifications.length) - index - 1;
 
-                  if (reversedIndex < messages.length) {
-                    // Handle messages
-                    final message = messages[reversedIndex];
-                    return buildMessageTile(message, reversedIndex);
-                  } else if (reversedIndex < messages.length + notifications.length) {
-                    // Handle notifications
-                    final notificationIndex = reversedIndex - messages.length;
-                    final notification = notifications[notificationIndex];
-                    return buildNotificationTile(notification, notificationIndex);
-                  } else {
-                    // Handle unfinished audits
-                    final unfinishedIndex = reversedIndex - messages.length - notifications.length;
-                    final unfinishedItem = unfinished[unfinishedIndex];
-                    return buildUnfinishedTile(unfinishedItem, unfinishedIndex);
-                }
-          },
+          if (reversedIndex < messages.length) {
+            // Handle messages
+            final message = messages[reversedIndex];
+            return buildMessageTile(message, reversedIndex);
+          } else {
+            // Handle notifications
+            final notificationIndex = reversedIndex - messages.length;
+            final notification = notifications[notificationIndex];
+            return buildNotificationTile(notification, notificationIndex);
+          }// } else {
+          //   // Handle unfinished audits
+          //   final unfinishedIndex = reversedIndex - messages.length - notifications.length;
+          //   final unfinishedItem = unfinished[unfinishedIndex];
+          //   return buildUnfinishedTile(unfinishedItem, unfinishedIndex);
+          // }
+        },
       ),
     );
   }

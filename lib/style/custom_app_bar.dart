@@ -164,13 +164,13 @@ class StaffCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           children: [
             Icon(
               Icons.manage_accounts,
-              size: 40.0,
+              size: 35.0,
               color: Colors.yellow,// Adjusted size for the icon
             ),
             SizedBox(width: 8.0),
             Text(
               'Staff Portal',
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,color: Colors.yellow,), // Adjusted the font size for better alignment
+              style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold,color: Colors.yellow,), // Adjusted the font size for better alignment
             ),
           ],
         ),

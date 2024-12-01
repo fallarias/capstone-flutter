@@ -54,7 +54,7 @@ class ClientCustomBottomNavigationBar extends StatelessWidget {
           icon: SizedBox(
             width: 30, // Customize the icon size
             height: 30,
-            child: const Icon(Icons.menu, size: 30),
+            child: const Icon(Icons.logout, size: 30),
           ),
           label: 'Logout',
         ),

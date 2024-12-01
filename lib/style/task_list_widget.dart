@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 import 'package:flutter/material.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
@@ -11,12 +10,6 @@ import 'package:isu_canner/services/task/downloadPdf.dart';
 
 
 
-=======
-import 'package:flutter/material.dart';
-import '../services/task/tasks.dart';
-import '../variables/ip_address.dart';
-import 'package:qr_flutter/qr_flutter.dart';
->>>>>>> main
 class TaskListWidget extends StatefulWidget {
   const TaskListWidget({super.key});
 
@@ -27,17 +20,13 @@ class TaskListWidget extends StatefulWidget {
 class _TaskListWidgetState extends State<TaskListWidget> {
   List<dynamic> tasks = [];
   bool isLoading = true;
-<<<<<<< HEAD
   String token = '';
-=======
->>>>>>> main
   final TaskService taskService = TaskService(ipaddress);
 
   @override
   void initState() {
     super.initState();
     fetchTasks();
-<<<<<<< HEAD
     getToken();
   }
 
@@ -52,13 +41,6 @@ class _TaskListWidgetState extends State<TaskListWidget> {
 
     try {
       final fetchedTasks = await taskService.fetchTasks(token);
-=======
-  }
-
-  Future<void> fetchTasks() async {
-    try {
-      final fetchedTasks = await taskService.fetchTasks();
->>>>>>> main
       setState(() {
         tasks = fetchedTasks;
         isLoading = false;
@@ -70,50 +52,37 @@ class _TaskListWidgetState extends State<TaskListWidget> {
     }
   }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> main
   @override
   Widget build(BuildContext context) {
     return isLoading
         ? const Center(child: CircularProgressIndicator())
         : tasks.isEmpty
-            ? const Center(child: Text('No tasks available'))
-            : Column(
-                children: tasks.map((task) {
-                  return ListTile(
-                    title: Text(task['name']),
-<<<<<<< HEAD
-                    onTap: () async {
-                      final taskId = task['task_id'].toString();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TaskDetailScreen(
-                              filePath: task['pdfUrl'],
-                              fileName: task['filename'],
-                              fileType: task['type'],
-                              id: taskId,
-                              qrData: '',
-                          ),
-=======
-                    onTap: () {
-                      final taskId = task['task_id']; 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TaskDetailScreen(taskId: taskId),
->>>>>>> main
-                        ),
-                      );
-                    },
-                  );
-                }).toList(),
-              );
-<<<<<<< HEAD
-    }
+        ? const Center(child: Text('No tasks available'))
+        : Column(
+      children: tasks.map((task) {
+        return ListTile(
+          title: Text(task['name']),
+          onTap: () async {
+            final taskId = task['task_id'].toString();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TaskDetailScreen(
+                  filePath: task['pdfUrl'],
+                  fileName: task['filename'],
+                  fileType: task['type'],
+                  id: taskId,
+                  qrData: '',
+                ),
+              ),
+            );
+          },
+        );
+      }).toList(),
+    );
   }
+}
 
 // Example TaskDetailScreen to handle task details
 class TaskDetailScreen extends StatelessWidget {
@@ -178,40 +147,3 @@ class TaskDetailScreen extends StatelessWidget {
     );
   }
 }
-=======
-  }
-}
-
-
-
-
-// Example TaskDetailScreen to handle task details
-class TaskDetailScreen extends StatelessWidget {
-  final int taskId;
-
-  const TaskDetailScreen({super.key, required this.taskId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Task Details'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20), 
-
-            QrImageView(
-              data: taskId.toString(), 
-              version: QrVersions.auto,
-              size: 200.0, 
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
->>>>>>> main

@@ -152,7 +152,7 @@ class _NotificationTransactionState extends State<NotificationTransaction>
         final startTime = formatDateTime(notification['start'] ?? '');
         final deadlineTime = formatDateTime(notification['deadline'] ?? '');
         final task = notification['task'] ?? '';
-        final date = formatDateTime(notification['created_at'] ?? 'Today');
+        final date = formatDateTime(notification['start'] ?? 'Today');
 
         return GestureDetector(
           onTap: () async {
@@ -214,7 +214,7 @@ class _NotificationTransactionState extends State<NotificationTransaction>
         final target_department = message['target_department'] ?? 'Unknown Department';
         final department = message['department'] ?? 'Unknown Department';
         final messageText = message['message'] ?? 'No Message';
-        final sentTime = formatDateTime(message['created_at'] ?? 'Today');
+        final sentTime = formatDateTime(message['start'] ?? 'Today');
 
         return GestureDetector(
           onTap: () async {

@@ -24,6 +24,8 @@ class ClientHomepage extends StatefulWidget {
 }
 
 class _ClientHomepageState extends State<ClientHomepage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // GlobalKey for Scaffold
+
   bool _isSearching = false;
   int _selectedIndex = 0;
   int notificationCount = 0; // Variable to store unread notification count
@@ -45,9 +47,8 @@ class _ClientHomepageState extends State<ClientHomepage> {
       _fetchUnreadNotificationCount();
       _showWelcomePopup(); // Show popup after login
     });
+    _chartData = fetchChartData();
   }
-
-
 
   void _fetchUnreadNotificationCount() async {
     // This is just an example; replace with actual API call or database query
@@ -63,7 +64,6 @@ class _ClientHomepageState extends State<ClientHomepage> {
     await Future.delayed(Duration(seconds: 1)); // Simulating network delay
     return 2; // Replace with actual fetched count
   }
-
 
   void _showWelcomePopup() {
     showDialog(
@@ -86,30 +86,52 @@ class _ClientHomepageState extends State<ClientHomepage> {
         } else {
           final statusCounts = snapshot.data!;
           return Scaffold(
-            body: Column(
-              children: [
-                SizedBox(
-                  height: 200,
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    children: [
-                      _Row1StatusContainer(statusCounts.availableDocuments, "Available Document"),
-                      _Row1StatusContainer(statusCounts.messages, "Message"),
-                    ],
+            body: SingleChildScrollView( // Add SingleChildScrollView here
+              child: Column(
+                children: [
+                  // Add the text at the top of the dashboard
+                  Transform.translate(
+                    offset: Offset(0, 22.0), // Move 12.0 pixels down along the Y-axis
+                    child: Padding(
+                      padding: const EdgeInsets.all(6.0), // Add some padding around the text
+                      child: Text(
+                        'Dashboard', // Your title text here
+                        style: TextStyle(
+                          fontSize: 24, // Customize font size
+                          fontWeight: FontWeight.bold, // Make it bold
+                          color: Colors.black, // Customize color
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: 200,
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    children: [
-                      _Row2StatusContainer(statusCounts.pendingDocuments, "Pending"),
-                      _Row2StatusContainer(statusCounts.completeDocuments, "Complete"),
-                    ],
+
+                  SizedBox(
+                    height: 200,
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true, // Set shrinkWrap to true
+                      physics: NeverScrollableScrollPhysics(), // Prevent scrolling inside GridView
+                      children: [
+                        _Row1StatusContainer(statusCounts.availableDocuments, "Available Document"),
+                        _Row1StatusContainer(statusCounts.messages, "Message"),
+                      ],
+                    ),
                   ),
-                ),
-                _buildAreaChart(),
-              ],
+                  SizedBox(
+                    height: 200,
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true, // Set shrinkWrap to true
+                      physics: NeverScrollableScrollPhysics(), // Prevent scrolling inside GridView
+                      children: [
+                        _Row2StatusContainer(statusCounts.pendingDocuments, "Pending"),
+                        _Row2StatusContainer(statusCounts.completeDocuments, "Complete"),
+                      ],
+                    ),
+                  ),
+                  _buildBarChart(),
+                ],
+              ),
             ),
           );
         }
@@ -119,32 +141,41 @@ class _ClientHomepageState extends State<ClientHomepage> {
 
 
 
+  void _openDrawerAndShowTemplate() {
+    // Open the drawer programmatically
+    _scaffoldKey.currentState?.openDrawer();
+    // Trigger dropdown for the template
+    _showTemplateDropdown();
+  }
 
+  void _showTemplateDropdown() {
+    setState(() {
+      // Example flag to open dropdown if applicable
+    });
+  }
 
-
-
-  Widget _Row1StatusContainer(String title, String count, {double verticalOffset = -30.0}) {
+  Widget _Row1StatusContainer(String title, String count, {double verticalOffset = 10.0}) {
     return Flexible(
-      child: Transform.translate(
-        offset: Offset(0, verticalOffset),
+      child: InkWell(
+        onTap: () {
+          // Handle the click here
+          if (title == "Available Document") {
+            // Open the drawer first
+            Scaffold.of(context).openDrawer();
+          } else if (title == "Message") {
+            // Handle other actions for "Message"
+          }
+        },
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 40.0),
+          margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 30.0),
           padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
           decoration: BoxDecoration(
             color: Colors.greenAccent.shade100,
             borderRadius: BorderRadius.circular(15),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12.withOpacity(0.2),
-                spreadRadius: 1,
-                blurRadius: 7,
-                offset: Offset(0, 3),
-              ),
-            ],
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // Align content to the start horizontally
-            mainAxisAlignment: MainAxisAlignment.start, // Align content to the top vertically
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
                 title,
@@ -153,7 +184,7 @@ class _ClientHomepageState extends State<ClientHomepage> {
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
-                textAlign: TextAlign.start, // Align text within its container to the start
+                textAlign: TextAlign.start,
               ),
               SizedBox(height: 4),
               Text(
@@ -163,7 +194,7 @@ class _ClientHomepageState extends State<ClientHomepage> {
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
-                textAlign: TextAlign.start, // Align text within its container to the start
+                textAlign: TextAlign.start,
               ),
             ],
           ),
@@ -172,41 +203,34 @@ class _ClientHomepageState extends State<ClientHomepage> {
     );
   }
 
-
-
-  Widget _Row2StatusContainer(String title, String count, {double verticalOffset = -110.0}) {
+  Widget _Row2StatusContainer(String title, String count, {double verticalOffset = -40.0}) {
     return Flexible(
       child: GestureDetector(
         onTap: () {
-          if (title == "Pending") { // Check if the specific container is clicked
+          // Handle the click here
+          if (title == "Pending") {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const TrackDocument(), // Navigate to TrackDocument page
               ),
             );
+          } else if (title == "Complete") {
+            // Handle other actions for "Complete"
           }
         },
         child: Transform.translate(
           offset: Offset(0, verticalOffset),
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 40.0),
+            margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 40.0),
             padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
             decoration: BoxDecoration(
               color: Colors.greenAccent.shade100,
               borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 7,
-                  offset: Offset(0, 3),
-                ),
-              ],
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Align content to the start horizontally
-              mainAxisAlignment: MainAxisAlignment.start, // Align content to the top vertically
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
                   title,
@@ -215,7 +239,7 @@ class _ClientHomepageState extends State<ClientHomepage> {
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
-                  textAlign: TextAlign.start, // Align text within its container to the start
+                  textAlign: TextAlign.start,
                 ),
                 SizedBox(height: 4),
                 Text(
@@ -225,7 +249,7 @@ class _ClientHomepageState extends State<ClientHomepage> {
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
                   ),
-                  textAlign: TextAlign.start, // Align text within its container to the start
+                  textAlign: TextAlign.start,
                 ),
               ],
             ),
@@ -234,104 +258,117 @@ class _ClientHomepageState extends State<ClientHomepage> {
       ),
     );
   }
-
-
-
-  Widget _buildAreaChart({double verticalOffset = -150.0}) {
-    return Transform.translate(
-      offset: Offset(0, verticalOffset),
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 10),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12.withOpacity(0.2),
-              spreadRadius: 1,
-              blurRadius: 7,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: AspectRatio(
-          aspectRatio: 1.7, // Adjusted aspect ratio for a slightly compressed fit
-          child: LineChart(
-            LineChartData(
-              gridData: FlGridData(show: false),
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: 20, // Adjust interval as needed
-                    getTitlesWidget: (value, meta) {
-                      return Text(
-                        value.toInt().toString(),
-                        style: TextStyle(fontSize: 10), // Smaller font size for Y-axis labels
-                      );
-                    },
+  Widget _buildBarChart({double verticalOffset = -80.0}) {
+    return FutureBuilder<ChartData>(
+      future: _chartData,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else {
+          final data = snapshot.data!;
+          return Transform.translate(
+            offset: Offset(0, verticalOffset),
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12.withOpacity(0.2),
+                    spreadRadius: 1,
+                    blurRadius: 7,
+                    offset: Offset(0, 3),
                   ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: 1,
-                    getTitlesWidget: (value, meta) {
-                      switch (value.toInt()) {
-                        case 0:
-                          return Text('Mon', style: TextStyle(fontSize: 10));
-                        case 1:
-                          return Text('Tue', style: TextStyle(fontSize: 10));
-                        case 2:
-                          return Text('Wed', style: TextStyle(fontSize: 10));
-                        case 3:
-                          return Text('Thu', style: TextStyle(fontSize: 10));
-                        case 4:
-                          return Text('Fri', style: TextStyle(fontSize: 10));
-                        case 5:
-                          return Text('Sat', style: TextStyle(fontSize: 10));
-                        case 6:
-                          return Text('Sun', style: TextStyle(fontSize: 10));
-                        default:
-                          return Text('');
-                      }
-                    },
-                  ),
-                ),
-                rightTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                topTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
+                ],
               ),
-              borderData: FlBorderData(show: true),
-              minX: 0,
-              maxX: 6,
-              minY: 0,
-              maxY: 100, // Set Y-axis to range from 0 to 100
-              lineBarsData: [
-                LineChartBarData(
-                  spots: [
-                    FlSpot(0, 10),
-                    FlSpot(1, 30),
-                    FlSpot(2, 20),
-                    FlSpot(3, 50),
-                    FlSpot(4, 40),
-                    FlSpot(5, 60),
-                    FlSpot(6, 30),
-                  ],
-                  isCurved: true,
-                  color: Colors.blue,
-                  dotData: FlDotData(show: false),
-                  belowBarData: BarAreaData(show: true, color: Colors.green.withOpacity(0.3)),
-                ),
-              ],
+              child: Column(
+                children: [
+                  // Title
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'My Request',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Chart
+                  AspectRatio(
+                    aspectRatio: 1.8,
+                    child: BarChart(
+                      BarChartData(
+                        alignment: BarChartAlignment.spaceAround,
+                        gridData: FlGridData(show: false),
+                        titlesData: FlTitlesData(
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                return Text(
+                                  value.toInt().toString(),
+                                  style: TextStyle(fontSize: 10),
+                                );
+                              },
+                            ),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                if (value.toInt() < data.days.length) {
+                                  return Text(
+                                    data.days[value.toInt()],
+                                    style: TextStyle(fontSize: 10),
+                                  );
+                                }
+                                return Text('');
+                              },
+                            ),
+                          ),
+                          rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                        ),
+                        borderData: FlBorderData(show: true),
+                        barGroups: List.generate(
+                          data.values.length,
+                              (index) => BarChartGroupData(
+                            x: index,
+                            barRods: [
+                              BarChartRodData(
+                                toY: data.values[index],
+                                color: Colors.blue,
+                                width: 16,
+                                borderRadius: BorderRadius.circular(4),
+                                backDrawRodData: BackgroundBarChartRodData(
+                                  show: true,
+                                  toY: data.values.reduce((a, b) => a > b ? a : b),
+                                  color: Colors.grey.withOpacity(0.2),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
-      ),
+          );
+        }
+      },
     );
   }
 
@@ -377,6 +414,7 @@ class _ClientHomepageState extends State<ClientHomepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey, // Set the GlobalKey here
       appBar: ClientCustomAppBar(
         isSearching: _isSearching,
         onSearchToggle: (isSearching) {
@@ -391,11 +429,47 @@ class _ClientHomepageState extends State<ClientHomepage> {
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
         hasUnreadNotifications: hasUnreadNotifications,
-        //notificationCount: notificationCount,
       ),
     );
   }
+  late Future<ChartData> _chartData;
+
+  Future<ChartData> fetchChartData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('token');
+    final String userId = prefs.getInt('userId')?.toString() ?? '';
+
+    final response = await http.get(
+      Uri.parse('$ipaddress/bar_chart/${userId.toString()}'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return ChartData.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load chart data');
+    }
+  }
 }
+
+
+class ChartData {
+  final List<String> days;
+  final List<double> values;
+
+  ChartData({required this.days, required this.values});
+
+  factory ChartData.fromJson(Map<String, dynamic> json) {
+    return ChartData(
+      days: List<String>.from(json['days']),
+      values: List<double>.from(json['values'].map((value) => value.toDouble())),
+    );
+  }
+}
+
 class StatusCounts {
   final String availableDocuments;
   final String messages;

@@ -36,40 +36,20 @@ Future<void> downloadPdf(BuildContext context, String url, String fileName, Stri
   // Get the external storage directory (e.g., Downloads)
   Directory directory = Directory('/storage/emulated/0/Download');
 
-  // Save QR code PDF to a separate name
-  String qrCodePdfPath = '${directory.path}/$fileName-QRCode.pdf';
-  String downloadedPdfPath = '${directory.path}/$fileName.pdf'; // Separate name for the downloaded PDF
-
-
+  // Define file paths for the QR code image and downloaded PDF
+  String qrCodeImagePath = '${directory.path}/$fileName-QRCode.png';  // Save QR code as PNG
+  String downloadedPdfPath = '${directory.path}/$fileName.pdf';  // Separate name for the downloaded PDF
 
   try {
     String userDetails = jsonEncode({'userId': userId, 'taskId': id});
+
     // Generate QR code as image bytes
-    final qrCodeImage = await generateQrCode(userDetails);
+    final qrCodeImageBytes = await generateQrCodeImage(userDetails);
 
-    // Create a new PDF document for the QR code
-    final pdf = pw.Document();
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Center(
-            child: pw.Column(
-              mainAxisAlignment: pw.MainAxisAlignment.center,
-              children: [
-                pw.Image(pw.MemoryImage(qrCodeImage)), // Add QR code image
-                pw.SizedBox(height: 20),
-                pw.Text(userDetails, style: pw.TextStyle(fontSize: 24)),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-
-    // Save the QR code PDF document
-    final qrOutputFile = File(qrCodePdfPath);
-    await qrOutputFile.writeAsBytes(await pdf.save());
-    print("PDF with QR code saved to $qrCodePdfPath");
+    // Save the QR code image as a PNG file
+    final qrCodeImageFile = File(qrCodeImagePath);
+    await qrCodeImageFile.writeAsBytes(qrCodeImageBytes);
+    print("QR code image saved to $qrCodeImagePath");
 
     // Proceed with downloading the actual PDF
     final response = await http.get(
@@ -94,11 +74,8 @@ Future<void> downloadPdf(BuildContext context, String url, String fileName, Stri
   }
 }
 
-
-
-
 // Generate QR code as image bytes using qr_flutter
-Future<Uint8List> generateQrCode(String details) async {// Concatenate qrData and userId
+Future<Uint8List> generateQrCodeImage(String details) async {
   final qrValidationResult = QrValidator.validate(
     data: details,
     version: QrVersions.auto,
@@ -122,6 +99,7 @@ Future<Uint8List> generateQrCode(String details) async {// Concatenate qrData an
     throw Exception("QR Code validation failed");
   }
 }
+
 
 
 Future<bool> requestStoragePermission() async {

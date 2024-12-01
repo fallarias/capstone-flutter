@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../variables/ip_address.dart';
 import 'package:http/http.dart' as http;
 
-class MessageNotificationScreen extends StatefulWidget {
+class LackRequirementsScreen extends StatefulWidget {
   final String title;
   final String message;
   final String date;
@@ -15,15 +15,15 @@ class MessageNotificationScreen extends StatefulWidget {
   final String finishTime;
   final String office;
 
-  MessageNotificationScreen({required this.title, required this.message, required this.startTime,
-                            required this.date, required this.office, required this.deadlineTime
-                            , required this.finishTime});
+  LackRequirementsScreen({required this.title, required this.message, required this.startTime,
+    required this.date, required this.office, required this.deadlineTime
+    , required this.finishTime});
 
   @override
-  _MessageDetailScreenState createState() => _MessageDetailScreenState();
+  _LackRequirementsScreenState createState() => _LackRequirementsScreenState();
 }
 
-class _MessageDetailScreenState extends State<MessageNotificationScreen> with SingleTickerProviderStateMixin {
+class _LackRequirementsScreenState extends State<LackRequirementsScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _opacity;
   final TextEditingController messageController = TextEditingController();
@@ -77,17 +77,7 @@ class _MessageDetailScreenState extends State<MessageNotificationScreen> with Si
             SizedBox(height: 20),
             // The message content
             Text(
-              'Starting Time: ${widget.startTime}',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Deadline Time: ${widget.deadlineTime}',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Finished Time: ${widget.finishTime}',
+              widget.message,
               style: TextStyle(fontSize: 16),
             ),
           ],

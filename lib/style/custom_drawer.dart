@@ -1,30 +1,34 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:isu_canner/screens/office_staff/notification_Transaction.dart';
 import '../screens/client/track_document.dart';
+import '../screens/office_staff/transaction_history.dart';
 import '../services/logout.dart';
 import 'task_list_widget.dart';
-=======
-import 'task_list_widget.dart'; 
->>>>>>> main
 
-class ClientCustomDrawer extends StatelessWidget {
+
+class ClientCustomDrawer extends StatefulWidget {
+  @override
+  _ClientCustomDrawerState createState() => _ClientCustomDrawerState();
+}
+
+class _ClientCustomDrawerState extends State<ClientCustomDrawer> {
+  // Boolean to manage the expansion state of the 'Template' section
+  bool isTemplateExpanded = false;
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      // Set the background color of the drawer to green
       backgroundColor: Colors.green,
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-<<<<<<< HEAD
           SizedBox(
             height: 160,
             child: DrawerHeader(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.green.shade900, // No const here, as it's not allowed
+                    Colors.green.shade900,
                     Colors.green,
                     Colors.lightGreen,
                   ],
@@ -32,7 +36,6 @@ class ClientCustomDrawer extends StatelessWidget {
                   end: Alignment.bottomRight,
                 ),
               ),
-
               child: SingleChildScrollView(
                 child: Transform.translate(
                   offset: const Offset(0, 15),
@@ -73,11 +76,11 @@ class ClientCustomDrawer extends StatelessWidget {
               ),
             ),
           ),
-          // Wrapping ListTile in a Container for styling
+          // ACTIONS section
           Container(
             margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             decoration: BoxDecoration(
-              color: Colors.white, // Background color for the ListTile container
+              color: Colors.white,
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListTile(
@@ -89,42 +92,10 @@ class ClientCustomDrawer extends StatelessWidget {
                   color: Colors.green,
                 ),
               ),
+              onTap: () {
+                // You can handle any other navigation or action here
+              },
             ),
-=======
-          const DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.green,
-            ),
-            child: Text(
-              'Drawer Header',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.menu_open_sharp),
-            title: const Text('ACTIONS'),
-            onTap: () {
-              // Handle the tap here
-            },
-          ),
-          // Template section with dropdown
-          const ExpansionTile(
-            leading: Icon(Icons.content_copy),
-            title: Text('TEMPLATE'),
-            children: <Widget>[
-              TaskListWidget(),
-            ],
-          ),
-          ListTile(
-            leading: const Icon(Icons.fact_check),
-            title: const Text('TRACK DOCUMENT'),
-            onTap: () {
-              // Handle the tap here
-            },
->>>>>>> main
           ),
           // TEMPLATE section with a container
           Container(
@@ -133,18 +104,39 @@ class ClientCustomDrawer extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const ExpansionTile(
-              leading: Icon(Icons.content_copy, color: Colors.green),
+            child: ListTile(
+              leading: Icon(Icons.document_scanner, color: Colors.green),
               title: Text(
-                'TEMPLATE',
+                'AVAILABLE DOCUMENT',
                 style: TextStyle(color: Colors.green),
               ),
-              children: <Widget>[
-                TaskListWidget(),
-              ],
+              onTap: () {
+                // Toggle the expansion state when the template is clicked
+                setState(() {
+                  isTemplateExpanded = !isTemplateExpanded;
+                });
+              },
             ),
           ),
-          // TRACK DOCUMENT section with a container
+          // Conditionally show the ExpansionTile for Template
+          if (isTemplateExpanded)
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: ExpansionTile(
+                leading: Icon(Icons.content_copy, color: Colors.green),
+                title: Text(
+                  'TEMPLATE',
+                  style: TextStyle(color: Colors.green),
+                ),
+                children: <Widget>[
+                  TaskListWidget(),  // The content of your expansion
+                ],
+              ),
+            ),
           Container(
             margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             decoration: BoxDecoration(
@@ -180,12 +172,13 @@ class ClientCustomDrawer extends StatelessWidget {
               },
             ),
           ),
-          // Add more ListTiles for other drawer options as needed
+          // Other sections such as Track Document, Notification, etc.
         ],
       ),
     );
   }
 }
+
 
 
 
@@ -219,7 +212,7 @@ class StaffCustomDrawer extends StatelessWidget {
               ),
               child: SingleChildScrollView(
                 child: Transform.translate(
-                  offset: const Offset(0, -20),
+                  offset: const Offset(0, 10),
                   child: Row(
                     children: [
                       CircleAvatar(
@@ -294,7 +287,12 @@ class StaffCustomDrawer extends StatelessWidget {
                 style: TextStyle(color: Colors.green),
               ),
               onTap: () {
-                // Handle the tap here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TransactionHistory(),
+                  ),
+                );
               },
             ),
           ),

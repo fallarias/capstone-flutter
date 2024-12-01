@@ -39,7 +39,7 @@ class _UserState extends State<File> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = await prefs.getString('token');
 
-    ApiResponse response = await getFiles();
+    ApiResponse response = await getFiles(token);
 
     if(response.error == null){
       setState(() {

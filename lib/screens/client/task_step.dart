@@ -123,7 +123,7 @@ class StepIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: List.generate(steps.length, (index) {
-        final isFinished = steps[index].Status.toLowerCase() == 'finished';
+        final isFinished = steps[index].Status == 'Completed';
 
         return Column(
           children: [
