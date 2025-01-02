@@ -18,6 +18,10 @@ Future<void> downloadPdf(BuildContext context, String url, String fileName, Stri
     return;
   }
 
+  if (url.endsWith('.pdf')) {
+    url = url.replaceAll('.pdf', '.docx');
+  }
+
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('token');
   String userId = prefs.getInt('userId').toString();
@@ -36,9 +40,13 @@ Future<void> downloadPdf(BuildContext context, String url, String fileName, Stri
   // Get the external storage directory (e.g., Downloads)
   Directory directory = Directory('/storage/emulated/0/Download');
 
+  // Ensure no duplication of the file extension
+  String fileExtension = url.split('.').last; // Get file extension from the URL
+  String finalFileName = fileName.endsWith('.$fileExtension') ? fileName : '$fileName.$fileExtension'; // Add extension if missing
+
   // Define file paths for the QR code image and downloaded PDF
   String qrCodeImagePath = '${directory.path}/$fileName-QRCode.png';  // Save QR code as PNG
-  String downloadedPdfPath = '${directory.path}/$fileName.pdf';  // Separate name for the downloaded PDF
+  String downloadedPdfPath = '${directory.path}/$finalFileName';  // Correct name for the downloaded file
 
   try {
     String userDetails = jsonEncode({'userId': userId, 'taskId': id});

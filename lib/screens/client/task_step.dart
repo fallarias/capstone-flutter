@@ -48,7 +48,7 @@ class TrackOrderScreenState extends State<TrackOrderScreen> {
             return OrderStatus(
               officeName: item['Office_name'],
               officeTask: item['Office_task'],
-              newAllotedTime: item['New_alloted_time'],
+              newAllotedTime: item['New_alloted_time_display'],
               Status: item['task_status'],
             );
           }).toList();
@@ -195,7 +195,7 @@ class OrderStatusWidget extends StatelessWidget {
               Text('Status: ${item.Status}'),
               Text('Office: ${item.officeName}'),
               Text('Task: ${item.officeTask}'),
-              Text('Allotted Time: ${item.newAllotedTime} ${item.newAllotedTime == "1" ? "hour" : "hours"}'),
+              Text('Allotted Time: ${item.newAllotedTime} '),
             ],
           ),
         ),

@@ -27,6 +27,8 @@ class _StaffHomepageState extends State<StaffHomepage> {
   final TextEditingController toController = TextEditingController();
   final TextEditingController messageController = TextEditingController();
   final TextEditingController idController = TextEditingController();
+  List<String> officeList = [];
+  String? selectedTo;
 
   @override
   void initState() {
@@ -35,6 +37,7 @@ class _StaffHomepageState extends State<StaffHomepage> {
       _showWelcomePopup();
     });
     _chartData = fetchChartData();
+    _fetchAllOffice();
   }
 
   void _showWelcomePopup() async {
@@ -56,6 +59,39 @@ class _StaffHomepageState extends State<StaffHomepage> {
     }
   }
 
+  Future<void> _fetchAllOffice() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    final String? department = prefs.getString('department');
+    print('Fetching office list...');
+
+    final response = await http.get(
+      Uri.parse('$ipaddress/all_office/${department.toString()}'),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print('Response Status: ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        officeList = data.cast<String>();
+      });
+      print(response.body);
+    } else {
+      print('Failed to load office list: ${response.statusCode} ${response.body}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${response.statusCode}')),
+      );
+      setState(() {
+        officeList = [];
+      });
+    }
+  }
 
   void _showPopupForm(BuildContext context) {
     showDialog(
@@ -66,17 +102,24 @@ class _StaffHomepageState extends State<StaffHomepage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                controller: toController,
-                decoration: const InputDecoration(labelText: 'To'),
+              DropdownButtonFormField<String>(
+                value: selectedTo,
+                items: officeList.map((option) {
+                  return DropdownMenuItem<String>(
+                    value: option,
+                    child: Text(option),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedTo = value!;
+                  });
+                },
+                decoration: const InputDecoration(labelText: 'To:'),
               ),
               TextField(
                 controller: messageController,
-                decoration: const InputDecoration(labelText: 'Message'),
-              ),
-              TextField(
-                controller: idController,
-                decoration: const InputDecoration(labelText: 'ID'),
+                decoration: const InputDecoration(labelText: 'Message:'),
               ),
             ],
           ),
@@ -89,17 +132,19 @@ class _StaffHomepageState extends State<StaffHomepage> {
             ),
             TextButton(
               onPressed: () async {
-                await _saveToDatabase(
-                  toController.text,
-                  messageController.text,
-                  idController.text,
-                );
-                // Clear the controllers after submission
-                toController.clear();
-                messageController.clear();
-                idController.clear();
+                if (selectedTo != null) {
+                  await _saveToDatabase(
+                    selectedTo!,
+                    messageController.text,
+                  );
+                  // Clear the controllers after submission
+                  messageController.clear();
 
-                Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                } else {
+                  // Handle validation if no option is selected
+                  print('Please select an option');
+                }
               },
               child: const Text('Submit'),
             ),
@@ -109,16 +154,47 @@ class _StaffHomepageState extends State<StaffHomepage> {
     );
   }
 
-  Future<void> _saveToDatabase(String to, String message, String id) async {
-    // Add database code here, e.g., using Firebase Firestore:
-    /*
-    await FirebaseFirestore.instance.collection('messages').add({
-      'to': to,
-      'message': message,
-      'id': id,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
-    */
+  Future<void> _saveToDatabase(String to, String message) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    final String? department = prefs.getString('department');
+    try {
+      final response = await http.post(
+        Uri.parse('$ipaddress/message_office/${department.toString()}'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: {
+          'message': message,
+          'target_department': to,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        print('API Response: $data');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Message saved successfully.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else if (response.statusCode == 409) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Transaction already exists. Resuming transaction does not allowed.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        print('Failed to create transaction. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Something went wrong: $e');
+    }
   }
 
   Widget _buildStatusContainer(String title, String count, {double verticalOffset = -30.0}) {
@@ -363,6 +439,13 @@ class _StaffHomepageState extends State<StaffHomepage> {
                             // Area Chart
                             SizedBox(height: 16.0), // Add spacing before the chart
                             _buildBarChart(),
+                            SizedBox(
+                              width: 200,
+                              child: ElevatedButton(
+                                onPressed: () => _showPopupForm(context), // Wrap in a lambda function
+                                child: const Text('Send Message'),
+                              ),
+                            ),
                           ],
                         ),
                       ),

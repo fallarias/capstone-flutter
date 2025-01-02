@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 
 class MessageNotificationScreen extends StatefulWidget {
   final String title;
+  final String fullname;
   final String message;
   final String date;
   final String startTime;
@@ -17,7 +18,7 @@ class MessageNotificationScreen extends StatefulWidget {
 
   MessageNotificationScreen({required this.title, required this.message, required this.startTime,
                             required this.date, required this.office, required this.deadlineTime
-                            , required this.finishTime});
+                            , required this.finishTime, required this.fullname});
 
   @override
   _MessageDetailScreenState createState() => _MessageDetailScreenState();
@@ -65,7 +66,7 @@ class _MessageDetailScreenState extends State<MessageNotificationScreen> with Si
 
             // "From: (office)"
             Text(
-              'From: ${widget.office}',
+              'From: ${widget.fullname} (${widget.office})',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             SizedBox(height: 20),
@@ -87,7 +88,9 @@ class _MessageDetailScreenState extends State<MessageNotificationScreen> with Si
             ),
             SizedBox(height: 10),
             Text(
-              'Finished Time: ${widget.finishTime}',
+              widget.finishTime != null
+                  ? 'Finished Time: ${widget.finishTime}'
+                  : 'Finished Time: Not available',
               style: TextStyle(fontSize: 16),
             ),
           ],

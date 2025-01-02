@@ -60,20 +60,12 @@ class _MessageOfficeScreenState extends State<MessageOfficeScreen> with SingleTi
               widget.date,
               style: TextStyle(color: Colors.grey, fontSize: 14),
             ),
-            SizedBox(height: 10),
-
-            // "From: (office)"
-            Text(
-              'From: ${widget.office}',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
             SizedBox(height: 20),
-
             Text(
               'Message:',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 30),
             // The message content
             Text(
               widget.message,

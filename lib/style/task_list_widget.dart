@@ -65,13 +65,23 @@ class _TaskListWidgetState extends State<TaskListWidget> {
           title: Text(task['name']),
           onTap: () async {
             final taskId = task['task_id'].toString();
+            final filePath = task['pdfUrl'] ?? ''; // Use pdfUrl if available
+            final fileType = filePath.endsWith('.pdf') ? 'application/pdf' : task['type'];
+
+            if (filePath.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('File is not available')),
+              );
+              return;
+            }
+
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => TaskDetailScreen(
-                  filePath: task['pdfUrl'],
+                  filePath: filePath,
                   fileName: task['filename'],
-                  fileType: task['type'],
+                  fileType: fileType,
                   id: taskId,
                   qrData: '',
                 ),

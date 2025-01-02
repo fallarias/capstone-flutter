@@ -109,6 +109,7 @@ class _NotificationTransactionState extends State<NotificationTransaction>
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

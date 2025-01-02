@@ -65,21 +65,21 @@ class WelcomePopup extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 40),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'User ID: ${user.id}\nEmail: ',
-                    style: const TextStyle(fontSize: 16, color: Colors.black54),
-                  ),
-                  TextSpan(
-                    text: user.email,
-                    style: const TextStyle(fontSize: 16, color: Colors.blue),
-                  ),
-                ],
-              ),
-              textAlign: TextAlign.start,
-            ),
+            // Text.rich(
+            //   TextSpan(
+            //     children: [
+            //       TextSpan(
+            //         text: 'User ID: ${user.id}\nEmail: ',
+            //         style: const TextStyle(fontSize: 16, color: Colors.black54),
+            //       ),
+            //       TextSpan(
+            //         text: user.email,
+            //         style: const TextStyle(fontSize: 16, color: Colors.blue),
+            //       ),
+            //     ],
+            //   ),
+            //   textAlign: TextAlign.start,
+            // ),
 
           ],
         ),

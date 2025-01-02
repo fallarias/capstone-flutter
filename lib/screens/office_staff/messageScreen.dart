@@ -439,21 +439,28 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
 
   Future<void> resetTaskStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? auditId = prefs.getString('audit_id'); // Use auditId instead of transactionId
 
-    await prefs.remove('isTaskFinished_$auditId');
-    await prefs.remove('canResume_$auditId');
-    await prefs.remove('isStopFinished_$auditId');
+    // Get all keys in SharedPreferences
+    Set<String> keys = prefs.getKeys();
 
+    // Identify and remove all keys related to audit tasks
+    for (String key in keys) {
+      if (key.startsWith('isTaskFinished_') || key.startsWith('canResume_') || key.startsWith('isStopFinished_')) {
+        await prefs.remove(key);
+      }
+    }
+
+    // Reset state variables
     setState(() {
       isTaskFinished = false; // Re-enable Stop Transaction
       canResume = false; // Disable Resume Transaction
       isStopFinished = false; // Disable Stop Transaction button
     });
 
+    // Show a success message
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Task status has been reset to not finished.'),
+        content: Text('All task statuses have been reset.'),
         duration: Duration(seconds: 3),
       ),
     );

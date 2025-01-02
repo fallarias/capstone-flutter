@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:isu_canner/screens/office_staff/notification_Transaction.dart';
 import '../screens/client/track_document.dart';
 import '../screens/office_staff/transaction_history.dart';
+import '../screens/client/trackDocumentHistory.dart';
 import '../services/logout.dart';
 import 'task_list_widget.dart';
 
@@ -168,7 +169,12 @@ class _ClientCustomDrawerState extends State<ClientCustomDrawer> {
                 style: TextStyle(color: Colors.green),
               ),
               onTap: () {
-                // Handle tap here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TransactionHistoryScreen(),
+                  ),
+                );
               },
             ),
           ),

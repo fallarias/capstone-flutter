@@ -14,10 +14,11 @@ class LackRequirementsScreen extends StatefulWidget {
   final String deadlineTime;
   final String finishTime;
   final String office;
+  final String fullname;
 
   LackRequirementsScreen({required this.title, required this.message, required this.startTime,
     required this.date, required this.office, required this.deadlineTime
-    , required this.finishTime});
+    , required this.finishTime, required this.fullname});
 
   @override
   _LackRequirementsScreenState createState() => _LackRequirementsScreenState();
@@ -65,7 +66,7 @@ class _LackRequirementsScreenState extends State<LackRequirementsScreen> with Si
 
             // "From: (office)"
             Text(
-              'From: ${widget.office}',
+              'From: ${widget.fullname} (${widget.office})',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             SizedBox(height: 20),

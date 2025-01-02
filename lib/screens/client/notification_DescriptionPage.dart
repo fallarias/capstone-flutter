@@ -17,6 +17,7 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
   List<dynamic> notifications = [];
   List<dynamic> messages = [];
   List<dynamic> unfinished = [];
+  List<dynamic> displayList = [];
   bool isLoading = true;
   String errorMessage = '';
   int unreadItems = 0;
@@ -70,12 +71,36 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
         setState(() {
           notifications = (data['finishedAudits'] as List)
               .where((task) => task['finished'] != null && task['finished'] is String)
+              .map((task) {
+                return {
+                  ...task,
+                  'user': task['user'] ?? {}, // Include the 'user' relationship
+                };
+              })
+              .toList();
+          unfinished = (data['UnfinishedAudits'] as List)
+              .where((unfinish) => unfinish['finished'] == null)
+              .map((unfinish) {
+                return {
+                  ...unfinish,
+                  'user': unfinish['user'] ?? {}, // Include the 'user' relationship
+                };
+              })
               .toList();
           messages = (data['messages'] as List)
               .where((stop) => stop['message'] != null && stop['department'] is String)
+              .map((stop) {
+                return {
+                  ...stop,
+                  'user': stop['user'] ?? {}, // Include the 'user' relationship
+                };
+              })
               .toList();
+
           print('Unfinished Audits: ${data['UnfinishedAudits']}');
 
+          displayList = notifications.isNotEmpty ? notifications : unfinished;
+          print(displayList);
           unreadItems = (messages.length + notifications.length) - readItems.length;
           errorMessage = '';
           isLoading = false;
@@ -101,6 +126,18 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
     try {
       final DateTime parsedDate = DateTime.parse(dateTime);
       final DateFormat formatter = DateFormat('hh:mm a');
+      return formatter.format(parsedDate);
+    } catch (e) {
+      print('Error parsing date in formatDateTime: $dateTime - Error: $e'); // Debug log
+      return 'Invalid date';
+    }
+  }
+
+  String formatDate(String? dateTime) {
+    if (dateTime == null) return 'Invalid date';
+    try {
+      final DateTime parsedDate = DateTime.parse(dateTime);
+      final DateFormat formatter = DateFormat('MMM dd, yyyy');
       return formatter.format(parsedDate);
     } catch (e) {
       print('Error parsing date in formatDateTime: $dateTime - Error: $e'); // Debug log
@@ -148,9 +185,10 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
       MaterialPageRoute(
         builder: (context) => LackRequirementsScreen(
           title: "Transaction No.  " + message['transaction_id'].toString(),
-          startTime: formatDateTime(message['start']),
-          deadlineTime: formatDateTime(message['deadline'] ?? ''),
-          finishTime: formatDateTime(message['finished'] ?? ''),
+          startTime: formatDateTime(message['start']) + ", " + formatDate(message['start']),
+          deadlineTime: formatDateTime(message['deadline'] ?? '')+ ", " + formatDate(message['deadline']),
+          finishTime: formatDateTime(message['finished'] ?? '') + ", " + formatDate(message['finished']),
+          fullname: message['user']['lastname'] + ', ' + message['user']['firstname'],
           message: message['message'] ?? 'No message', // Fallback if message is null
           date: formatDateForDisplay(message['created_at']) ?? 'Today', // Fallback if date is null
           office: message['department'],
@@ -175,12 +213,14 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
       MaterialPageRoute(
         builder: (context) => MessageNotificationScreen(
           title: "Transaction No.  " + notification['transaction_id'].toString(),
-          startTime: formatDateTime(notification['start']),
-          deadlineTime: formatDateTime(notification['deadline'] ?? ''),
-          finishTime: formatDateTime(notification['finished'] ?? ''),
+          fullname: notification['user']['lastname'] + ', ' + notification['user']['firstname'],
+          startTime: formatDateTime(notification['start']) + ", " + formatDate(notification['start']),
+          deadlineTime: formatDateTime(notification['deadline'] ?? '') + ", " + formatDate(notification['deadline']),
+          finishTime: formatDateTime(notification['finished'] ?? '') + ", " + formatDate(notification['finished']),
           message: 'Transaction starting at ${formatDateTime(notification['start'])} with a deadline of ${formatDateTime(notification['deadline'])}',
           date: formatDateForDisplay(notification['created_at']) ?? 'Today', // Fallback if date is null
           office: notification['office_name'],
+
         ),
       ),
     );
@@ -257,30 +297,25 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
-          : (notifications.isEmpty && messages.isEmpty && errorMessage.isEmpty)
+          : (displayList.isEmpty && messages.isEmpty && errorMessage.isEmpty)
           ? Center(child: Text('No notifications available.'))
           : errorMessage.isNotEmpty
           ? Center(child: Text(errorMessage))
           : ListView.builder(
-        itemCount: messages.length + notifications.length,
+        itemCount: messages.length + displayList.length,
         itemBuilder: (context, index) {
-          final reversedIndex = (messages.length + notifications.length) - index - 1;
+          final reversedIndex =
+              (messages.length + displayList.length) - index - 1;
 
           if (reversedIndex < messages.length) {
-            // Handle messages
             final message = messages[reversedIndex];
             return buildMessageTile(message, reversedIndex);
           } else {
-            // Handle notifications
-            final notificationIndex = reversedIndex - messages.length;
-            final notification = notifications[notificationIndex];
+            final notificationIndex =
+                reversedIndex - messages.length;
+            final notification = displayList[notificationIndex];
             return buildNotificationTile(notification, notificationIndex);
-          }// } else {
-          //   // Handle unfinished audits
-          //   final unfinishedIndex = reversedIndex - messages.length - notifications.length;
-          //   final unfinishedItem = unfinished[unfinishedIndex];
-          //   return buildUnfinishedTile(unfinishedItem, unfinishedIndex);
-          // }
+          }
         },
       ),
     );
