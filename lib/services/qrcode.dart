@@ -9,7 +9,7 @@ class QRService {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('token');
     final String? department = prefs.getString('department');
-
+    String userId = prefs.getInt('userId').toString();
     if (token == null) {
       print('Token is null. Please login first.');
       return false; // Indicate failure due to no token
@@ -17,7 +17,7 @@ class QRService {
 
     try {
       final response = await http.post(
-        Uri.parse('$ipaddress/scanned_data/${department.toString()}'),
+        Uri.parse('$ipaddress/scanned_data/${department.toString()}/${userId.toString()}'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

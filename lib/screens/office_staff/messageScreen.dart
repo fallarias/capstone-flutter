@@ -213,10 +213,12 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
     String? token = prefs.getString('token');
     String? transactionId = prefs.getString('transaction_id');
     String? auditId = prefs.getString('audit_id');
+    String userId = prefs.getInt('userId').toString();
     final String? department = prefs.getString('department');
     try {
       final response = await http.post(
-        Uri.parse('$ipaddress/lack_requirement/${transactionId.toString()}/${department.toString()}'),
+        Uri.parse('$ipaddress/lack_requirement/${transactionId.toString()}/${department.toString()}'
+            '/${userId.toString()}'),
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
@@ -270,11 +272,13 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
     String? token = prefs.getString('token');
     String? transactionId = prefs.getString('transaction_id');
     String? auditId = prefs.getString('audit_id');
+    String userId = prefs.getInt('userId').toString();
     final String? department = prefs.getString('department');
 
     try {
       final response = await http.post(
-        Uri.parse('$ipaddress/resume_transaction/${transactionId.toString()}/${department.toString()}'),
+        Uri.parse('$ipaddress/resume_transaction/${transactionId.toString()}/${department.toString()}'
+            '/${userId.toString()}'),
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
@@ -375,6 +379,7 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
     String? token = prefs.getString('token');
     String? transactionId = prefs.getString('transaction_id');
     String? auditId = prefs.getString('audit_id');
+    String userId = prefs.getInt('userId').toString();
     final String? department = prefs.getString('department');
 
     // Log the values for debugging
@@ -386,7 +391,7 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
     try {
       final response = await http.post(
         Uri.parse('$ipaddress/finish_transaction/${transactionId.toString()}/${department.toString()}'
-                  '/${auditId.toString()}'),
+                  '/${auditId.toString()}/${userId.toString()}'),
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',

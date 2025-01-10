@@ -67,7 +67,7 @@ class _NotificationTransactionState extends State<NotificationTransaction>
 
       setState(() {
         notifications = transactions
-            .where((task) => task['office_name'] == department)
+            .where((task) => task['office_name'] == department && task['staff_id'].toString() == userId)
             .toList();
         messages = message
             .where((task) => task['target_department'] == department)
@@ -216,6 +216,7 @@ class _NotificationTransactionState extends State<NotificationTransaction>
         final department = message['department'] ?? 'Unknown Department';
         final messageText = message['message'] ?? 'No Message';
         final sentTime = formatDateTime(message['start'] ?? 'Today');
+        final names = message['user']['email'] ?? 'no name';
 
         return GestureDetector(
           onTap: () async {
@@ -231,6 +232,7 @@ class _NotificationTransactionState extends State<NotificationTransaction>
                   office: department,
                   message: messageText,
                   date: sentTime,
+                  name: names,
                 ),
               ),
             );

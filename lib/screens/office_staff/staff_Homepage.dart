@@ -156,12 +156,13 @@ class _StaffHomepageState extends State<StaffHomepage> {
 
   Future<void> _saveToDatabase(String to, String message) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String userId = prefs.getInt('userId').toString();
     String? token = prefs.getString('token');
 
     final String? department = prefs.getString('department');
     try {
       final response = await http.post(
-        Uri.parse('$ipaddress/message_office/${department.toString()}'),
+        Uri.parse('$ipaddress/message_office/${department.toString()}/${userId.toString()}'),
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
@@ -542,6 +543,7 @@ class _StaffHomepageState extends State<StaffHomepage> {
     if (response.statusCode == 200) {
       return ChartData.fromJson(json.decode(response.body));
     } else {
+      print('Error: ${response.body}');
       throw Exception('Failed to load chart data');
     }
   }

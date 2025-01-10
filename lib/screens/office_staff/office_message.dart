@@ -12,8 +12,10 @@ class MessageOfficeScreen extends StatefulWidget {
   final String target_office;
   final String message;
   final String date;
+  final String name;
 
-  MessageOfficeScreen({required this.title, required this.message, required this.date, required this.office, required this.target_office});
+  MessageOfficeScreen({required this.title, required this.message, required this.date,
+                      required this.office, required this.target_office, required this.name});
 
   @override
   _MessageOfficeScreenState createState() => _MessageOfficeScreenState();
@@ -59,6 +61,11 @@ class _MessageOfficeScreenState extends State<MessageOfficeScreen> with SingleTi
             Text(
               widget.date,
               style: TextStyle(color: Colors.grey, fontSize: 14),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'From: ${widget.name}',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             SizedBox(height: 20),
             Text(
