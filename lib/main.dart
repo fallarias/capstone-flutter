@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:isu_canner/screens/client/ratingPage.dart';
 import 'package:isu_canner/screens/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/client/client_Homepage.dart';
@@ -51,7 +52,7 @@ class _MyAppState extends State<MyApp> {
     } else {
       setState(() {
         isLoggedIn = false;
-        initialPage = const HomeScreen();
+        initialPage = HomeScreen();
       });
     }
   }

@@ -216,7 +216,9 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
           fullname: notification['user']['lastname'] + ', ' + notification['user']['firstname'],
           startTime: formatDateTime(notification['start']) + ", " + formatDate(notification['start']),
           deadlineTime: formatDateTime(notification['deadline'] ?? '') + ", " + formatDate(notification['deadline']),
-          finishTime: formatDateTime(notification['finished'] ?? '') + ", " + formatDate(notification['finished']),
+          finishTime: notification['finished'] != null
+              ? formatDateTime(notification['finished']) + ", " + formatDate(notification['finished'])
+              : 'not',
           message: 'Transaction starting at ${formatDateTime(notification['start'])} with a deadline of ${formatDateTime(notification['deadline'])}',
           date: formatDateForDisplay(notification['created_at']) ?? 'Today', // Fallback if date is null
           office: notification['office_name'],

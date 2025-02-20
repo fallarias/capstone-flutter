@@ -88,7 +88,7 @@ class _MessageDetailScreenState extends State<MessageNotificationScreen> with Si
             ),
             SizedBox(height: 10),
             Text(
-              widget.finishTime != null
+              widget.finishTime != 'not'
                   ? 'Finished Time: ${widget.finishTime}'
                   : 'Finished Time: Not available',
               style: TextStyle(fontSize: 16),
