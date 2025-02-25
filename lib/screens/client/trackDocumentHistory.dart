@@ -137,7 +137,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                     itemBuilder: (context, index) {
                       final transaction = filteredTransactions[index];
 
-                      String transactionType = transaction['transaction_type'] ?? 'Unknown';
+                      String transactionType = transaction['task']['name'] ?? 'Unknown';
                       String status = transaction['status'] ?? 'Ongoing';
                       String formattedDate = 'Invalid Date';
                       String transacID = transaction['transaction_id'].toString();

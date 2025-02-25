@@ -99,7 +99,7 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
 
           print('Unfinished Audits: ${data['UnfinishedAudits']}');
 
-          displayList = notifications.isNotEmpty ? notifications : unfinished;
+          displayList = [...notifications, ...unfinished];
           print(displayList);
           unreadItems = (messages.length + notifications.length) - readItems.length;
           errorMessage = '';
