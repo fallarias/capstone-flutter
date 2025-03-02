@@ -18,9 +18,9 @@ Future<void> downloadPdf(BuildContext context, String url, String fileName, Stri
     return;
   }
 
-  if (url.endsWith('.pdf')) {
-    url = url.replaceAll('.pdf', '.docx');
-  }
+  // if (url.endsWith('.pdf')) {
+  //   url = url.replaceAll('.pdf', '.docx');
+  // }
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('token');
@@ -73,7 +73,7 @@ Future<void> downloadPdf(BuildContext context, String url, String fileName, Stri
       // Save the downloaded PDF to a separate file
       final downloadedOutputFile = File(downloadedPdfPath);
       await downloadedOutputFile.writeAsBytes(response.bodyBytes);
-      print("Downloaded PDF saved to $downloadedPdfPath");
+      print("Downloaded File saved to $downloadedPdfPath");
     } else {
       print("Failed to download file: ${response.statusCode}");
     }
