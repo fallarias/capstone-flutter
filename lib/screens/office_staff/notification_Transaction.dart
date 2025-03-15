@@ -114,15 +114,30 @@ class _NotificationTransactionState extends State<NotificationTransaction>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Messages'),
+        backgroundColor: Color(0xFF052B1D),
+        iconTheme: IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Colors.white, size: 15,), // Change to any icon
+          onPressed: () {
+            Navigator.pop(context); // Go back to the previous screen
+          },
+        ),// Change background color
+        title: const Text(
+          'Messages',
+          style: TextStyle(color: Colors.white), // Change title text color
+        ),
         bottom: TabBar(
           controller: _tabController,
-          tabs: [
+          labelColor: Colors.white, // Change selected tab text color
+          unselectedLabelColor: Colors.white70, // Optional: Change unselected tab text color
+          indicatorColor: Colors.white, // Optional: Change indicator color
+          tabs: const [
             Tab(text: 'Transaction Messages'),
             Tab(text: 'Office Messages'),
           ],
         ),
       ),
+
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : TabBarView(
@@ -178,7 +193,7 @@ class _NotificationTransactionState extends State<NotificationTransaction>
           },
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: Colors.grey[300],
+              backgroundColor: Color(0xFF052B1D),
               child: Icon(Icons.person, color: Colors.white),
             ),
             title: Text(

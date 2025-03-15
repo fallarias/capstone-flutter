@@ -17,7 +17,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _lastnameController = TextEditingController();
   final TextEditingController _firstnameController = TextEditingController();
   final TextEditingController _middlenameController = TextEditingController();
-  String _selectedaccountType = 'client'; 
+  String _selectedaccountType = 'client';
+  String? _selectedDepartment;
+
   final TextEditingController _departmentController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -29,21 +31,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         _lastnameController.text,
         _firstnameController.text,
         _middlenameController.text,
-        _selectedaccountType,  
+        _selectedaccountType,
         _departmentController.text,
         _emailController.text,
         _passwordController.text,
         _confirmpasswordController.text,
       );
 
-      if (!mounted) return; // Check if widget is still mounted
+      if (!mounted) return;
 
       if (response.error == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registered successfully')),
         );
         await Future.delayed(const Duration(seconds: 2));
-        Navigator.pushReplacement(context,
+        Navigator.pushReplacement(
+          context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } else {
@@ -62,7 +65,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   void dispose() {
-    // Dispose controllers when the widget is removed from the tree
     _lastnameController.dispose();
     _firstnameController.dispose();
     _middlenameController.dispose();
@@ -80,16 +82,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         title: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.keyboard_arrow_left, color: Color(0xFF00A87E)),
               onPressed: () {
                 Navigator.pushReplacement(
-                  context, 
+                  context,
                   MaterialPageRoute(builder: (context) => const HomeScreen()),
                 );
               },
             ),
             Image.asset(
-              'assets/images/isu.png',  // Image asset in your project
+              'assets/images/isu.png',
               width: 40,
               height: 40,
             ),
@@ -105,141 +107,165 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           ],
         ),
         centerTitle: true,
-        backgroundColor: Colors.green[900],
+        backgroundColor: const Color(0xFF052B1D),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.only(
-            top: 100,
+            top: 20,
             left: 20,
             right: 20,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20, // Adjust for keyboard
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
           ),
           child: Form(
             key: formKey,
             child: Column(
               children: [
+                const Column(
+                  children: [
+                    Text(
+                      'SIGN UP',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF00A87E),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                  ],
+                ),
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _lastnameController,
-                  decoration: greenInputDecoration("LastName", "Your Lastname"),  // Using textBoxStyle here
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return 'LASTNAME IS REQUIRED!';
-                    }
-                    return null;
-                  },
+                  decoration: greenInputDecoration("LastName", "Your Lastname"),
+                  validator: (value) => value!.isEmpty ? 'LASTNAME IS REQUIRED!' : null,
                 ),
                 const Divider(),
                 TextFormField(
                   controller: _firstnameController,
-                  decoration: greenInputDecoration("FirstName", "Your Firstname"),  // Using textBoxStyle here
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return 'FIRSTNAME IS REQUIRED!';
-                    }
-                    return null;
-                  },
+                  decoration: greenInputDecoration("FirstName", "Your Firstname"),
+                  validator: (value) => value!.isEmpty ? 'FIRSTNAME IS REQUIRED!' : null,
                 ),
                 const Divider(),
                 TextFormField(
                   controller: _middlenameController,
-                  decoration: greenInputDecoration("MiddleName", "Your Middlename"),  // Using textBoxStyle here
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return 'MIDDLENAME IS REQUIRED!';
-                    }
-                    return null;
-                  },
+                  decoration: greenInputDecoration("MiddleName", "Your Middlename"),
+                  validator: (value) => value!.isEmpty ? 'MIDDLENAME IS REQUIRED!' : null,
                 ),
+                const Divider(),
+            DropdownButtonFormField<String>(
+              value: _selectedaccountType,
+              decoration: InputDecoration(
+                labelText: "Select User Type",
+                labelStyle: const TextStyle(color: Color(0xFF00A87E)), // Label color
+                border: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF00A87E), width: 2.0), // Border color
+                ),
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF00A87E), width: 2.0),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF00A87E), width: 2.5),
+                ),
+              ),
+              items: const [
+                DropdownMenuItem(
+                  value: 'client',
+                  child: Text('Client', style: TextStyle(color: Color(0xFF00A87E))),
+                ),
+                DropdownMenuItem(
+                  value: 'office staff',
+                  child: Text('Office Staff', style: TextStyle(color: Color(0xFF00A87E))),
+                ),
+              ],
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedaccountType = newValue!;
+                });
+              },
+              style: const TextStyle(color: Color(0xFF00A87E)), // Text color
+              dropdownColor: Colors.white.withOpacity(0.9), // Background color
+              iconEnabledColor: const Color(0xFF00A87E), // Dropdown icon color
+            ),
+
                 const Divider(),
                 DropdownButtonFormField<String>(
-                  value: _selectedaccountType,
-                  decoration: const InputDecoration(
-                    labelText: "Select User Type",
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    {'display': 'Client', 'value': 'client'},
-                    {'display': 'Office Staff', 'value': 'office staff'},
-                    //{'display': 'Supplier', 'value': 'supplier'},
-                  ].map((item) {
-                    return DropdownMenuItem<String>(
-                      value: item['value'],
-                      child: Text(item['display']!),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
+                  decoration: greenInputDecoration("Department", "Select your Department"),
+                  value: _selectedDepartment, // Store the selected value
+                  items: ["Administrative and Finance Services Office", "Budget Office", "Accounting Office",
+                    "University Vice President Office", "University President Office","Executive Office",
+                    "ICT Infrastracture Office","Procurement Office","Bids and Awards Committee Office",
+                    "Supply Office"]
+                      .map((dept) => DropdownMenuItem(
+                    value: dept,
+                    child: Text(
+                      dept,
+                      style: TextStyle(color: Color(0xFF00A87E)), // Change dropdown item text color
+                    ),
+                  ))
+                      .toList(),
+                  onChanged: (value) {
                     setState(() {
-                      _selectedaccountType = newValue!;
+                      _selectedDepartment = value!;
                     });
                   },
+                  style: TextStyle(color: Color(0xFF00A87E)), // Change selected text color
+                  dropdownColor: Colors.white, // Change dropdown background color
+                  validator: (value) => value == null ? 'PLEASE SELECT YOUR DEPARTMENT!' : null,
                 ),
-                const Divider(),
-                TextFormField(
-                  controller: _departmentController,
-                  decoration: greenInputDecoration("Department", "Your Department Eg. CCSICT"),  // Using textBoxStyle here
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return 'PLEASE ENTER YOUR DEPARTMENT!';
-                    }
-                    return null;
-                  },
-                ),
-                const Divider(),
+
+
+                 const Divider(),
                 TextFormField(
                   controller: _emailController,
-                  decoration: greenInputDecoration("Email", "example@email.com"),  // Using textBoxStyle here
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return 'PLEASE ENTER YOUR EMAIL';
-                    }
-                    return null;
-                  },
+                  decoration: greenInputDecoration("Email", "example@email.com"),
+                  validator: (value) => value!.isEmpty ? 'PLEASE ENTER YOUR EMAIL' : null,
                 ),
                 const Divider(),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: greenInputDecoration("Password", "Your Password"),  // Using textBoxStyle here
+                  decoration: greenInputDecoration("Password", "Your Password"),
                   obscureText: true,
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return 'PLEASE ENTER YOUR PASSWORD!';
-                    } else if (value.length < 8) {
-                      return 'PASSWORD MUST BE AT LEAST 8 CHARACTERS!';
-                    } else if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                      return 'PASSWORD MUST CONTAIN AT LEAST 1 UPPERCASE LETTER!';
-                    } else if (!RegExp(r'\d').hasMatch(value)) {
-                      return 'PASSWORD MUST CONTAIN AT LEAST 1 NUMBER!';
-                    }
+                  validator: (value) {
+                    if (value!.isEmpty) return 'PLEASE ENTER YOUR PASSWORD!';
+                    if (value.length < 8) return 'PASSWORD MUST BE AT LEAST 8 CHARACTERS!';
+                    if (!RegExp(r'[A-Z]').hasMatch(value)) return 'PASSWORD MUST CONTAIN AT LEAST 1 UPPERCASE LETTER!';
+                    if (!RegExp(r'\d').hasMatch(value)) return 'PASSWORD MUST CONTAIN AT LEAST 1 NUMBER!';
                     return null;
                   },
                 ),
                 const Divider(),
                 TextFormField(
                   controller: _confirmpasswordController,
-                  decoration: greenInputDecoration("Password Confimation", "Confirm your Password"), 
+                  decoration: greenInputDecoration("Password Confirmation", "Confirm your Password"),
                   obscureText: true,
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return 'PASSWORD CONFIRMATION IS REQUIRED!';
-                    } else if (value != _passwordController.text) {
-                      return 'PASSWORDS DO NOT MATCH!';
-                    }
-                    return null;
-                  },
+                  validator: (value) => value!.isEmpty
+                      ? 'PASSWORD CONFIRMATION IS REQUIRED!'
+                      : value != _passwordController.text
+                      ? 'PASSWORDS DO NOT MATCH!'
+                      : null,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
+                    minimumSize: const Size(200, 50),  // Button height
+                    backgroundColor: Color(0xFF052B1D),  // Change background color
+                    foregroundColor: const Color(0xFF00A87E),  // Change text color
                   ),
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
                       registerUser();
                     }
                   },
-                  child: const Text('Submit'),
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(
+                      fontSize: 20,  // Change font size
+                      fontWeight: FontWeight.bold,  // Make text bold
+                    ),
+                  ),
                 ),
+
               ],
             ),
           ),

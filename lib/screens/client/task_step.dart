@@ -75,8 +75,15 @@ class TrackOrderScreenState extends State<TrackOrderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Track Document'),
+        title: const Text(
+          'Track Document',
+          style: TextStyle(
+            color: Colors.white, // Set the text color to white (or any other color you prefer)
+          ),
+        ),
+        backgroundColor: Color(0xFF052B1D), // Set the background color of the AppBar
       ),
+
       body: FutureBuilder<ApiResponse>(
         future: fetchTasks(),
         builder: (context, snapshot) {
@@ -122,10 +129,13 @@ class StepIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start, // Ensures the column starts from the top
+      crossAxisAlignment: CrossAxisAlignment.start, // Adjust horizontal alignment (if needed)
       children: List.generate(steps.length, (index) {
         final isFinished = steps[index].Status == 'Completed';
 
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.center, // Centers the row contents
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -144,7 +154,7 @@ class StepIndicator extends StatelessWidget {
                     ),
                     if (index < steps.length - 1)
                       Container(
-                        height: 70, // Adjust the height of the line between circles
+                        height: 100, // Adjust the height of the line between circles
                         width: 2, // Adjust the width of the line
                         color: isFinished ? Colors.green : Colors.grey[300],
                       ),
@@ -156,6 +166,7 @@ class StepIndicator extends StatelessWidget {
         );
       }),
     );
+
   }
 }
 
@@ -188,7 +199,7 @@ class OrderStatusWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 32.0, top: 8.0, bottom: 8.0),
+          padding: const EdgeInsets.only(left: 32.0, top: 18.0, bottom: 8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

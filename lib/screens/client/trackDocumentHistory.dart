@@ -20,7 +20,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   String errorMessage = '';
   String? selectedFilter = 'All'; // Filter option
 
-  final List<String> filterOptions = ['All', 'Completed', 'Ongoing', 'Failed']; // Example filter options
+  final List<String> filterOptions = ['All', 'finished', 'ongoing', 'failed']; // Example filter options
 
   @override
   void initState() {
@@ -88,9 +88,14 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transaction History'),
-        backgroundColor: Colors.green,
+        title: const Text(
+          'Transaction History',
+          style: TextStyle(color: Colors.white), // Change text color here
+        ),
+        backgroundColor: const Color(0xFF052B1D), // Background color
+        iconTheme: const IconThemeData(color: Colors.white), // Change back button color
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -109,10 +114,8 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                   value: selectedFilter,
                   onChanged: (String? newValue) {
                     setState(() {
-                      selectedFilter = newValue;
-                      isLoading = true; // Re-fetch data when filter changes
+                      selectedFilter = newValue!;
                     });
-                    _fetchTransactions();
                   },
                   items: filterOptions.map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
@@ -121,6 +124,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                     );
                   }).toList(),
                 ),
+
               ],
             ),
             const SizedBox(height: 10),
@@ -166,11 +170,11 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: status == 'Completed' ? Colors.green : Colors.red,
+                                  color: status == 'finished' ? Colors.green : Colors.red,
                                 ),
                               ),
                             ),
-                            if (status == 'ongoing') // Add button only for ongoing transactions
+                            if (status == 'finished') // Add button only for ongoing transactions
                               Padding(
                                 padding: const EdgeInsets.all(16.0),
                                 child: ElevatedButton(

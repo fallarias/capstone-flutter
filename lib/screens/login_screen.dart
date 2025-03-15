@@ -128,7 +128,7 @@ Future<void> _saveAndRedirectToHome(User user) async {
         ],
       ),
       centerTitle: true,
-      backgroundColor: Colors.green[900],
+      backgroundColor: Color(0xFF052B1D),
     );
   }
 
@@ -141,7 +141,7 @@ Future<void> _saveAndRedirectToHome(User user) async {
           style: TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.bold,
-            color: Colors.lightGreen,
+              color: Color(0xFF00A87E)
           ),
         ),
         SizedBox(height: 10),
@@ -150,7 +150,7 @@ Future<void> _saveAndRedirectToHome(User user) async {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.green,
+               color: Color(0xFF00A87E)
           ),
         ),
       ],
@@ -161,7 +161,7 @@ Future<void> _saveAndRedirectToHome(User user) async {
     return TextFormField(
       controller: _emailController,
       decoration: greenInputDecoration("Email", "Enter your email"),
-      cursorColor: Colors.green,
+      cursorColor: Color(0xFF00A87E),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter your Email!';
@@ -182,12 +182,12 @@ Future<void> _saveAndRedirectToHome(User user) async {
             suffixIcon: IconButton(
               icon: Icon(
                 _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                color: Colors.green,
+                color: Color(0xFF00A87E),
               ),
               onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
             ),
           ),
-          cursorColor: Colors.green,
+          cursorColor: Color(0xFF00A87E),
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter your password!';
@@ -208,9 +208,9 @@ Future<void> _saveAndRedirectToHome(User user) async {
                       _obscurePassword = !_showPassword; // Toggle password visibility
                     });
                   },
-                  activeColor: Colors.green, // Change checkbox color
+                  activeColor: Color(0xFF00A87E), // Change checkbox color
                 ),
-                const Text('Show Password', style: TextStyle(color: Colors.green)),
+                const Text('Show Password', style: TextStyle(color: Color(0xFF00A87E))),
               ],
             ),
             /*
@@ -238,7 +238,7 @@ Future<void> _saveAndRedirectToHome(User user) async {
         onPressed: _isLoading ? null : _loginUser,
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
-          backgroundColor: Colors.green,
+          backgroundColor: Color(0xFF00A87E),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
@@ -265,7 +265,7 @@ Future<void> _saveAndRedirectToHome(User user) async {
                 TextSpan(
                   text: "here.",
                   style: const TextStyle(
-                    color: Colors.green, // Color to indicate it's clickable
+                    color: Color(0xFF00A87E), // Color to indicate it's clickable
                     decoration: TextDecoration.none, // No underline
                   ),
                   recognizer: TapGestureRecognizer()..onTap = () {

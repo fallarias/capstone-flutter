@@ -82,18 +82,25 @@ class TransactionHistoryPage extends State<TransactionHistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transaction History'),
-        backgroundColor: Colors.green, // Adjust color as per your theme
+        title: const Text(
+          'Transaction History',
+          style: TextStyle(
+            color: Colors.white, // Set the text color here
+          ),
+        ),
+        backgroundColor: Color(0xFF052B1D), // AppBar background color
       ),
+
       body: Container(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Transactions',
+              'History',
               style: TextStyle(
                 fontSize: 22,
+                color: Color(0xFF00A87E),
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -107,7 +114,7 @@ class TransactionHistoryPage extends State<TransactionHistory> {
               Expanded(
                 child: SingleChildScrollView(
                   child: Table(
-                    border: TableBorder.all(color: Colors.grey, width: 1),
+                    border: TableBorder.all(color: Color(0xFF052B1D), width: 1),
                     columnWidths: const {
                       0: FractionColumnWidth(0.2), // ID No.
                       1: FractionColumnWidth(0.5), // Transaction Name
@@ -117,7 +124,7 @@ class TransactionHistoryPage extends State<TransactionHistory> {
                       // Table Header
                       TableRow(
                         decoration: const BoxDecoration(
-                          color: Colors.greenAccent,
+                          color: Color(0xFF00A87E),
                         ),
                         children: const [
                           Padding(
@@ -126,6 +133,7 @@ class TransactionHistoryPage extends State<TransactionHistory> {
                               'ID No.',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -136,6 +144,7 @@ class TransactionHistoryPage extends State<TransactionHistory> {
                               'Transaction Name',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -146,6 +155,7 @@ class TransactionHistoryPage extends State<TransactionHistory> {
                               'Date',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                               textAlign: TextAlign.center,
                             ),

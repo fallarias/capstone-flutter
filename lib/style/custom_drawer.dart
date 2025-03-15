@@ -19,19 +19,30 @@ class _ClientCustomDrawerState extends State<ClientCustomDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Colors.green,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF052B1D), // Original background color
+              Color(0xFF052B1D),
+              Color(0xFF00795E),// Additional color
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
           SizedBox(
             height: 160,
             child: DrawerHeader(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.green.shade900,
-                    Colors.green,
-                    Colors.lightGreen,
+                    Color(0xFF052B1D),
+                    Color(0xFF052B1D),
+                    Color(0xFF052B1D),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -39,7 +50,7 @@ class _ClientCustomDrawerState extends State<ClientCustomDrawer> {
               ),
               child: SingleChildScrollView(
                 child: Transform.translate(
-                  offset: const Offset(0, 15),
+                  offset: const Offset(0, 5),
                   child: Row(
                     children: [
                       CircleAvatar(
@@ -79,37 +90,34 @@ class _ClientCustomDrawerState extends State<ClientCustomDrawer> {
           ),
           // ACTIONS section
           Container(
-            margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              margin: const EdgeInsets.only(top: 19, left: 8, right: 8, bottom: 5),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: ListTile(
-              title: const Text(
+            child: const ListTile(
+              title: Text(
                 'ACTIONS',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: Colors.green,
+                  color: Color(0xFF052B1D),
                 ),
               ),
-              onTap: () {
-                // You can handle any other navigation or action here
-              },
             ),
           ),
           // TEMPLATE section with a container
           Container(
-            margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            margin: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListTile(
-              leading: Icon(Icons.document_scanner, color: Colors.green),
+              leading: Icon(Icons.document_scanner, color: Color(0xFF052B1D)),
               title: Text(
                 'AVAILABLE DOCUMENT',
-                style: TextStyle(color: Colors.green),
+                style: TextStyle(color: Color(0xFF00795E)),
               ),
               onTap: () {
                 // Toggle the expansion state when the template is clicked
@@ -122,16 +130,16 @@ class _ClientCustomDrawerState extends State<ClientCustomDrawer> {
           // Conditionally show the ExpansionTile for Template
           if (isTemplateExpanded)
             Container(
-              margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              margin: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: ExpansionTile(
-                leading: Icon(Icons.content_copy, color: Colors.green),
+                leading: Icon(Icons.content_copy, color: Color(0xFF052B1D)),
                 title: Text(
                   'TEMPLATE',
-                  style: TextStyle(color: Colors.green),
+                  style: TextStyle(color: Color(0xFF00795E)),
                 ),
                 children: <Widget>[
                   TaskListWidget(),  // The content of your expansion
@@ -139,16 +147,16 @@ class _ClientCustomDrawerState extends State<ClientCustomDrawer> {
               ),
             ),
           Container(
-            margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            margin: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
             ),
             child: const ExpansionTile(
-              leading: Icon(Icons.track_changes, color: Colors.green),
+              leading: Icon(Icons.track_changes, color: Color(0xFF052B1D)),
               title: Text(
                 'TRACK DOCUMENT',
-                style: TextStyle(color: Colors.green),
+                style: TextStyle(color: Color(0xFF00795E)),
               ),
               children: <Widget>[
                 TrackDocument(),
@@ -163,10 +171,10 @@ class _ClientCustomDrawerState extends State<ClientCustomDrawer> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListTile(
-              leading: Icon(Icons.history, color: Colors.green),
+              leading: Icon(Icons.history, color: Color(0xFF052B1D)),
               title: Text(
                 'TRANSACTION HISTORY',
-                style: TextStyle(color: Colors.green),
+                style: TextStyle(color: Color(0xFF00795E)),
               ),
               onTap: () {
                 Navigator.push(
@@ -181,6 +189,7 @@ class _ClientCustomDrawerState extends State<ClientCustomDrawer> {
           // Other sections such as Track Document, Notification, etc.
         ],
       ),
+    ),
     );
   }
 }
@@ -198,7 +207,18 @@ class StaffCustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Colors.green,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF052B1D), // Original background color
+              Color(0xFF052B1D),
+              Color(0xFF00795E),// Additional color
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
@@ -208,9 +228,9 @@ class StaffCustomDrawer extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.green.shade900,
-                    Colors.green,
-                    Colors.lightGreen,
+                    Color(0xFF052B1D),
+                    Color(0xFF052B1D),
+                    Color(0xFF052B1D),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -264,10 +284,10 @@ class StaffCustomDrawer extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListTile(
-              leading: Icon(Icons.notifications_active_sharp, color: Colors.green),
+              leading: Icon(Icons.notifications_active_sharp, color: Color(0xFF052B1D)),
               title: const Text(
                 'NOTIFICATION',
-                style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Color(0xFF00795E), fontWeight: FontWeight.bold),
               ),
               onTap: () {
                 Navigator.push(
@@ -287,10 +307,10 @@ class StaffCustomDrawer extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListTile(
-              leading: Icon(Icons.history, color: Colors.green),
+              leading: Icon(Icons.history, color: Color(0xFF052B1D)),
               title: const Text(
                 'TRANSACTION HISTORY',
-                style: TextStyle(color: Colors.green),
+                style: TextStyle(color: Color(0xFF00795E)),
               ),
               onTap: () {
                 Navigator.push(
@@ -311,7 +331,7 @@ class StaffCustomDrawer extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListTile(
-              leading: Icon(Icons.logout, color: Colors.red),
+              leading: Icon(Icons.logout, color: Color(0xFF052B1D)),
               title: const Text(
                 'LOG OUT',
                 style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
@@ -323,6 +343,7 @@ class StaffCustomDrawer extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

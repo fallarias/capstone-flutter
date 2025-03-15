@@ -15,10 +15,13 @@ class MessageNotificationScreen extends StatefulWidget {
   final String deadlineTime;
   final String finishTime;
   final String office;
+  final DateTime overFinishTime;
+  final DateTime overDeadlineTime;
 
   MessageNotificationScreen({required this.title, required this.message, required this.startTime,
                             required this.date, required this.office, required this.deadlineTime
-                            , required this.finishTime, required this.fullname});
+                            , required this.finishTime, required this.fullname,
+                              required this.overFinishTime,required this.overDeadlineTime});
 
   @override
   _MessageDetailScreenState createState() => _MessageDetailScreenState();
@@ -91,6 +94,13 @@ class _MessageDetailScreenState extends State<MessageNotificationScreen> with Si
               widget.finishTime != 'not'
                   ? 'Finished Time: ${widget.finishTime}'
                   : 'Finished Time: Not available',
+              style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(height: 20),
+            Text(
+              widget.overFinishTime.isAfter(widget.overDeadlineTime)
+                  ? 'THE STAFF EXCEEDED THE DEADLINE.'
+                  : 'THE STAFF FINISHED THE TASK ON TIME.',
               style: TextStyle(fontSize: 16),
             ),
           ],

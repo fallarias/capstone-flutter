@@ -17,7 +17,7 @@ class ClientCustomAppBar extends StatelessWidget implements PreferredSizeWidget 
       leading: Builder(
         builder: (context) {
           return IconButton(
-            icon:const Icon(Icons.menu, size: 40,color: Colors.white,),
+            icon:const Icon(Icons.menu, size: 27,color: Colors.white,),
             onPressed: () {
               Scaffold.of(context).openDrawer(); // Open the drawer directly
             },
@@ -37,21 +37,21 @@ class ClientCustomAppBar extends StatelessWidget implements PreferredSizeWidget 
         children: [
           Icon(
             Icons.person,
-            size:34.0,
-            color: Colors.yellow,
+            size:20.0,
+            color: Color(0xFF00A87E),
           ),
           SizedBox(width: 8.0),
           Text(
-            'Client Portal',
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,color: Colors.yellow,), // Adjusted the font size for better alignment
+            'CLIENT PORTAL',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Color(0xFF00A87E),), // Adjusted the font size for better alignment
           ),
 
         ],
       ),
-      backgroundColor: Colors.green,
+      backgroundColor: Color(0xFF052B1D),
       actions: [
         IconButton(
-          icon: Icon(isSearching ? Icons.close : Icons.search,size: 35,color: Colors.yellow,),
+          icon: Icon(isSearching ? Icons.close : Icons.search,size: 30,color: Colors.yellow,),
           onPressed: () {
             onSearchToggle(!isSearching);
           },
@@ -141,9 +141,9 @@ class StaffCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.green.shade800, // First color
-            Colors.green.shade500,  // Second color
-            Colors.green.shade300, // Third color
+            Color(0xFF052B1D), // First color
+            Color(0xFF052B1D),  // Second color
+            Color(0xFF00A87E), // Third color
           ],
           begin: Alignment.topLeft, // Start of the gradient
           end: Alignment.bottomRight, // End of the gradient
@@ -153,7 +153,7 @@ class StaffCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         leading: Builder(
           builder: (context) {
             return IconButton(
-              icon: const Icon(Icons.menu, size: 40,color: Colors.white,), // Adjusted the size to be more reasonable
+              icon: const Icon(Icons.menu, size: 30,color: Colors.white,), // Adjusted the size to be more reasonable
               onPressed: () {
                 Scaffold.of(context).openDrawer(); // Open the drawer
               },
@@ -164,13 +164,13 @@ class StaffCustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           children: [
             Icon(
               Icons.manage_accounts,
-              size: 35.0,
+              size: 25.0,
               color: Colors.yellow,// Adjusted size for the icon
             ),
             SizedBox(width: 8.0),
             Text(
               'Staff Portal',
-              style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold,color: Colors.yellow,), // Adjusted the font size for better alignment
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.yellow,), // Adjusted the font size for better alignment
             ),
           ],
         ),

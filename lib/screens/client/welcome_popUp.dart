@@ -36,10 +36,11 @@ class WelcomePopup extends StatelessWidget {
             ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(
                 colors: [
-                  Color(0xff0f965e),
-                  Color(0xff00f83a),
-                  Color(0xff6aff8c),
-                  Color(0xff00f83a),
+                  Color(0xFF052B1D),
+                  Color(0xFF00A87E),
+                  Color(0xFF00A87E),
+                  Color(0xFF00A87E),
+                  Color(0xFF052B1D),
                 ],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,

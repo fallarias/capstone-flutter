@@ -34,7 +34,7 @@ class HomeScreen extends StatelessWidget {
                   style: GoogleFonts.zillaSlab(
                     textStyle: const TextStyle(
                       fontSize: 40,
-                      color: Colors.yellow,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -45,7 +45,7 @@ class HomeScreen extends StatelessWidget {
                   style: GoogleFonts.zillaSlab(
                     textStyle: const TextStyle(
                       fontSize: 16,
-                      color: Colors.yellow,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -62,9 +62,16 @@ class HomeScreen extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => const LoginScreen()),
                       );
                     },
-                    child: const Text('LOGIN'),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Color(0xFF00A87E), // Change text color here
+                    ),
+                    child: const Text(
+                      'LOGIN',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
+
                 const SizedBox(height: 10),
                 Container(
                   height: 5,
@@ -83,7 +90,13 @@ class HomeScreen extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => const RegistrationScreen()),
                       );
                     },
-                    child: const Text('Register'),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Color(0xFF00A87E), // Change text color here
+                    ),
+                    child: const Text(
+                      'REGISTER',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ],

@@ -188,7 +188,7 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
           startTime: formatDateTime(message['start']) + ", " + formatDate(message['start']),
           deadlineTime: formatDateTime(message['deadline'] ?? '')+ ", " + formatDate(message['deadline']),
           finishTime: formatDateTime(message['finished'] ?? '') + ", " + formatDate(message['finished']),
-          fullname: message['user']['lastname'] + ', ' + message['user']['firstname'],
+          fullname: message['staff']['lastname'] + ', ' + message['staff']['firstname'],
           message: message['message'] ?? 'No message', // Fallback if message is null
           date: formatDateForDisplay(message['created_at']) ?? 'Today', // Fallback if date is null
           office: message['department'],
@@ -213,7 +213,7 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
       MaterialPageRoute(
         builder: (context) => MessageNotificationScreen(
           title: "Transaction No.  " + notification['transaction_id'].toString(),
-          fullname: notification['user']['lastname'] + ', ' + notification['user']['firstname'],
+          fullname: notification['staff']['lastname'] + ', ' + notification['staff']['firstname'],
           startTime: formatDateTime(notification['start']) + ", " + formatDate(notification['start']),
           deadlineTime: formatDateTime(notification['deadline'] ?? '') + ", " + formatDate(notification['deadline']),
           finishTime: notification['finished'] != null
@@ -222,7 +222,13 @@ class _NotificationDescriptionPageState extends State<NotificationDescriptionPag
           message: 'Transaction starting at ${formatDateTime(notification['start'])} with a deadline of ${formatDateTime(notification['deadline'])}',
           date: formatDateForDisplay(notification['created_at']) ?? 'Today', // Fallback if date is null
           office: notification['office_name'],
+          overFinishTime: notification['finished'] != null && notification['finished'].isNotEmpty
+              ? DateTime.parse(notification['finished'])
+              : DateTime(1900, 1, 1), // Default fallback value
 
+          overDeadlineTime: notification['deadline'] != null && notification['deadline'].isNotEmpty
+              ? DateTime.parse(notification['deadline'])
+              : DateTime(1900, 1, 1), // Default fallback value
         ),
       ),
     );

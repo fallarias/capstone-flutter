@@ -95,11 +95,11 @@ class _ClientHomepageState extends State<ClientHomepage> {
                     child: Padding(
                       padding: const EdgeInsets.all(6.0), // Add some padding around the text
                       child: Text(
-                        'Dashboard', // Your title text here
+                        'Status Overview', // Your title text here
                         style: TextStyle(
-                          fontSize: 24, // Customize font size
+                          fontSize: 20, // Customize font size
                           fontWeight: FontWeight.bold, // Make it bold
-                          color: Colors.black, // Customize color
+                          color: Color(0xFF00A87E), // Customize color
                         ),
                       ),
                     ),
@@ -170,7 +170,7 @@ class _ClientHomepageState extends State<ClientHomepage> {
           margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 30.0),
           padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
           decoration: BoxDecoration(
-            color: Colors.greenAccent.shade100,
+            color: Color(0xFF00A87E),
             borderRadius: BorderRadius.circular(15),
           ),
           child: Column(
@@ -182,7 +182,7 @@ class _ClientHomepageState extends State<ClientHomepage> {
                 style: TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -192,7 +192,7 @@ class _ClientHomepageState extends State<ClientHomepage> {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: Colors.white,
                 ),
                 textAlign: TextAlign.start,
               ),
@@ -225,7 +225,7 @@ class _ClientHomepageState extends State<ClientHomepage> {
             margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 40.0),
             padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
             decoration: BoxDecoration(
-              color: Colors.greenAccent.shade100,
+              color: Color(0xFF00A87E),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Column(
@@ -237,7 +237,7 @@ class _ClientHomepageState extends State<ClientHomepage> {
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: Colors.white,
                   ),
                   textAlign: TextAlign.start,
                 ),
@@ -247,7 +247,7 @@ class _ClientHomepageState extends State<ClientHomepage> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Colors.white,
                   ),
                   textAlign: TextAlign.start,
                 ),
@@ -348,7 +348,7 @@ class _ClientHomepageState extends State<ClientHomepage> {
                             barRods: [
                               BarChartRodData(
                                 toY: data.values[index],
-                                color: Colors.blue,
+                                color: Color(0xFF00A87E),
                                 width: 16,
                                 borderRadius: BorderRadius.circular(4),
                                 backDrawRodData: BackgroundBarChartRodData(

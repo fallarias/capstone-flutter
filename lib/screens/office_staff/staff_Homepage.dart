@@ -218,7 +218,7 @@ class _StaffHomepageState extends State<StaffHomepage> {
             margin: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 40.0),
             padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
             decoration: BoxDecoration(
-              color: Colors.greenAccent.shade100,
+              color: Color(0xFF00A87E),
               borderRadius: BorderRadius.circular(15),
 
             ),
@@ -229,9 +229,9 @@ class _StaffHomepageState extends State<StaffHomepage> {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: Colors.white,
                   ),
                   textAlign: TextAlign.start,
                 ),
@@ -239,9 +239,9 @@ class _StaffHomepageState extends State<StaffHomepage> {
                 Text(
                   count,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 28,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Colors.white,
                   ),
                   textAlign: TextAlign.start,
                 ),
@@ -343,7 +343,7 @@ class _StaffHomepageState extends State<StaffHomepage> {
                             barRods: [
                               BarChartRodData(
                                 toY: data.values[index],
-                                color: Colors.blue,
+                                color: Color(0xFF00A87E),
                                 width: 16,
                                 borderRadius: BorderRadius.circular(4),
                                 backDrawRodData: BackgroundBarChartRodData(
@@ -409,7 +409,7 @@ class _StaffHomepageState extends State<StaffHomepage> {
                           style: TextStyle(
                             fontSize: 24, // Customize font size
                             fontWeight: FontWeight.bold, // Make it bold
-                            color: Colors.black, // Customize color
+                            color: Color(0xFF00A87E), // Customize color
                           ),
                         ),
                       ),
@@ -441,12 +441,18 @@ class _StaffHomepageState extends State<StaffHomepage> {
                             SizedBox(height: 16.0), // Add spacing before the chart
                             _buildBarChart(),
                             SizedBox(
-                              width: 200,
+                              width: 150,
+                              height: 45,
                               child: ElevatedButton(
-                                onPressed: () => _showPopupForm(context), // Wrap in a lambda function
+                                onPressed: () => _showPopupForm(context),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF052B1D), // Change background color
+                                  foregroundColor: Colors.white, // Change text color
+                                ),
                                 child: const Text('Send Message'),
                               ),
                             ),
+
                           ],
                         ),
                       ),
@@ -464,7 +470,7 @@ class _StaffHomepageState extends State<StaffHomepage> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.home, size: 30),
-                    color: Colors.green,
+                    color: Color(0xFF00A87E),
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
@@ -476,7 +482,7 @@ class _StaffHomepageState extends State<StaffHomepage> {
                   const SizedBox(width: 48), // Space for the FAB
                   IconButton(
                     icon: const Icon(Icons.logout, size: 30,),
-                    color: Colors.green,
+                    color: Color(0xFF00A87E),
                     onPressed: () async {
                       await logout(context);
                     },
@@ -509,9 +515,9 @@ class _StaffHomepageState extends State<StaffHomepage> {
                     );
                   }
                 },
-                backgroundColor: Colors.green,
+                backgroundColor: Color(0xFF00A87E),
                 elevation: 6.0,
-                child: const Icon(Icons.qr_code_scanner_rounded, size: 38.0),
+                child: const Icon(Icons.qr_code_scanner_rounded, size: 38.0, color: Colors.white,),
               ),
             ),
 

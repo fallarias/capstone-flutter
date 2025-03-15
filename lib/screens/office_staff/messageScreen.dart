@@ -54,7 +54,22 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(
+        backgroundColor: Color(0xFF052B1D), // Change background color
+        title: Text(
+          widget.title,
+          style: TextStyle(color: Colors.white), // Change text color to white
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.keyboard_arrow_left, color: Colors.white), // Add back arrow icon
+          onPressed: () {
+            // Define what happens when the back button is pressed
+            Navigator.pop(context); // Navigates back to the previous screen
+          },
+        ),
+      ),
+
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -92,73 +107,101 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
               'Deadline Time: ${widget.deadline}',
               style: TextStyle(fontSize: 16),
             ),
-            Center(
-              child: FadeTransition(
-                opacity: _opacity,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 200,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isStopFinished || canResume ? Colors.grey : Colors.blue,
-                          disabledBackgroundColor: Colors.grey,
-                        ),
-                        onPressed: isStopFinished
-                            ? null
-                            : () {
-                          _showPopupForm(context);
+            Padding(
+              padding: const EdgeInsets.only(top: 150.0),
+              child: Center(
+                child: FadeTransition(
+                  opacity: _opacity,
+                  child: Card(
+                    elevation: 10.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    margin: const EdgeInsets.all(16.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 200,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isStopFinished || canResume
+                                    ? Colors.grey
+                                    : Color(0xFF052B1D),
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: isStopFinished
+                                  ? null
+                                  : () {
+                                _showPopupForm(context);
+                              },
+                              child: const Text('Stop Transaction'),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 200,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: canResume && !isResuming
+                                    ? Colors.grey // Disabled state: grey
+                                    : Color(0xFF052B1D), // Normal state: dark green
+                                foregroundColor: Colors.white, // White text color
+                              ),
+                              onPressed: canResume && !isResuming
+                                  ? () {
+                                resumeTransaction();
+                                setState(() {
+                                  canResume = false;
+                                  isTaskFinished = true;
+                                });
+                              }
+                                  : null, // Disable button if condition is true
+                              child: const Text('Resume Transaction'),
+                            ),
+                          ),
 
-                        },
-                        child: const Text('Stop Transaction'),
+
+                          SizedBox(
+                            width: 200,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: (canResume || isTaskFinished)
+                                    ? Colors.grey
+                                    : Color(0xFF052B1D),
+                                foregroundColor: Colors.white, // Ensures text color is white
+                                disabledBackgroundColor: Colors.grey,
+                                disabledForegroundColor: Colors.white, // White text even when disabled
+                              ),
+                              onPressed: (canResume || isTaskFinished)
+                                  ? null
+                                  : () => _showConfirmationDialog(context),
+                              child: const Text('Finish Task'),
+                            ),
+                          ),
+
+                          SizedBox(
+                            width: 200,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF052B1D),
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: resetTaskStatus,
+                              child: const Text('Reset Task Status'),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 10), // Add spacing between buttons
-                    SizedBox(
-                      width: 200,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: canResume && !isResuming ? Colors.blue : Colors.grey,
-                          disabledBackgroundColor: Colors.grey,
-                        ),
-                        onPressed: canResume && !isResuming
-                            ? () {
-                          resumeTransaction();
-                          setState(() {
-                            canResume = false; // Disable Resume Transaction
-                            isTaskFinished = true; // Ensure Stop Transaction is disabled
-                          });
-                        }
-                            : null,
-                        child: const Text('Resume Transaction'),
-                      ),
-                    ), // Add spacing between buttons
-                    SizedBox(
-                      width: 200,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: (canResume || isTaskFinished) ? Colors.grey : Colors.blue,
-                          disabledBackgroundColor: Colors.grey,
-                        ),
-                        onPressed: (canResume || isTaskFinished) ? null : () => _showConfirmationDialog(context),
-                        child: const Text('Finish Task'),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 200,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                        ),
-                        onPressed: resetTaskStatus,
-                        child: const Text('Reset Task Status'),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+            )
+
+
+
           ],
         ),
       ),
