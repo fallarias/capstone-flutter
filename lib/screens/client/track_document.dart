@@ -60,10 +60,11 @@ class _DocumentState extends State<TrackDocument> {
           title: Row(
             children: [
               Text(
-                transaction.isNotEmpty
-                    ? transaction[0]['transaction_id'].toString()
-                    : 'No Transaction', // Transaction ID or fallback text
-              ), // Transaction ID on the right
+                transaction.firstWhere(
+                        (txn) => txn['task_id'] == task['task_id'],
+                    orElse: () => {'transaction_id': 'No Transaction'}
+                )['transaction_id'].toString(),
+              ),// Transaction ID on the right
               const SizedBox(width: 15), // Fixed spacing of 15px
               Text(task['name']), // Task name on the left
             ],
