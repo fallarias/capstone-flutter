@@ -2,8 +2,8 @@
   import 'dart:developer';
   import 'package:flutter/material.dart';
   import 'package:qr_code_scanner/qr_code_scanner.dart';
-
   import '../../services/qrcode.dart';
+  import '../office_staff/refresh_notifier.dart';
 
   class QRScannerPage extends StatefulWidget {
     const QRScannerPage({super.key});
@@ -155,13 +155,14 @@
                 actions: [
                   TextButton(
                     onPressed: () {
+                      refreshNotifier.value = true;
                       Navigator.of(context).pop();
                       controller.resumeCamera(); // Resume scanning after closing the dialog
                       setState(() {
                         result = null; // Reset result to allow for new scans
                       });
                     },
-                    child: const Text('Scan Again'),
+                    child: const Text('Close'),
                   ),
                 ],
               );

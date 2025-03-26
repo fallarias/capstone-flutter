@@ -13,6 +13,7 @@ class TrackOrderScreen extends StatefulWidget {
 class TrackOrderScreenState extends State<TrackOrderScreen> {
   String token = '';
   List<OrderStatus> statusList = [];
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -77,13 +78,10 @@ class TrackOrderScreenState extends State<TrackOrderScreen> {
       appBar: AppBar(
         title: const Text(
           'Track Document',
-          style: TextStyle(
-            color: Colors.white, // Set the text color to white (or any other color you prefer)
-          ),
+          style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color(0xFF052B1D), // Set the background color of the AppBar
+        backgroundColor: Color(0xFF052B1D),
       ),
-
       body: FutureBuilder<ApiResponse>(
         future: fetchTasks(),
         builder: (context, snapshot) {
@@ -93,86 +91,78 @@ class TrackOrderScreenState extends State<TrackOrderScreen> {
             return Center(child: Text('Error: ${snapshot.data?.error}'));
           } else {
             statusList = snapshot.data!.data as List<OrderStatus>;
-            return Row(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: StepIndicator(
-                    steps: statusList,
+
+            return SingleChildScrollView(
+              controller: _scrollController,
+              child: Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: StepIndicator(
+                          steps: statusList,
+                          scrollController: _scrollController,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          children: statusList.map((item) => OrderStatusWidget(item: item)).toList(),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: ListView.builder(
-                    itemCount: statusList.length,
-                    itemBuilder: (context, index) {
-                      final item = statusList[index];
-                      return OrderStatusWidget(item: item);
-                    },
-                  ),
-                ),
-              ],
+                ],
+              ),
             );
           }
         },
       ),
+
     );
   }
 }
 
-// Custom Step Indicator Widget
+// Custom Step Indicator Widget with Scroll Controller
 class StepIndicator extends StatelessWidget {
   final List<OrderStatus> steps;
+  final ScrollController scrollController;
 
-  const StepIndicator({Key? key, required this.steps}) : super(key: key);
+  const StepIndicator({Key? key, required this.steps, required this.scrollController}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start, // Ensures the column starts from the top
-      crossAxisAlignment: CrossAxisAlignment.start, // Adjust horizontal alignment (if needed)
-      children: List.generate(steps.length, (index) {
+    return ListView.builder(
+      controller: scrollController,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: steps.length,
+      itemBuilder: (context, index) {
         final isFinished = steps[index].Status == 'Completed';
-
         return Column(
-          crossAxisAlignment: CrossAxisAlignment.center, // Centers the row contents
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Align the circle and the line properly
-                Column(
-                  children: [
-                    // Add top margin only for the first circle (index == 0)
-                    Padding(
-                      padding: EdgeInsets.only(top: index == 0 ? 16.0 : 0), // Only for the first item
-                      child: CircleAvatar(
-                        radius: 16,
-                        backgroundColor: isFinished ? Colors.green : Colors.grey[300],
-                        child: Text('${index + 1}', style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                    if (index < steps.length - 1)
-                      Container(
-                        height: 100, // Adjust the height of the line between circles
-                        width: 2, // Adjust the width of the line
-                        color: isFinished ? Colors.green : Colors.grey[300],
-                      ),
-                  ],
-                ),
-              ],
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: isFinished ? Colors.green : Colors.grey[300],
+              child: Text('${index + 1}', style: TextStyle(color: Colors.white)),
             ),
+            if (index < steps.length - 1)
+              Container(
+                height: 100,
+                width: 2,
+                color: isFinished ? Colors.green : Colors.grey[300],
+              ),
           ],
         );
-      }),
+      },
     );
-
   }
 }
 
-
-
-// OrderStatus model remains the same
+// OrderStatus model
 class OrderStatus {
   final String officeName;
   final String officeTask;

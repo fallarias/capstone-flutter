@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-
+import '../office_staff/refresh_notifier.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:isu_canner/screens/office_staff/transaction_history.dart';
@@ -33,6 +33,12 @@ class _StaffHomepageState extends State<StaffHomepage> {
   @override
   void initState() {
     super.initState();
+    refreshNotifier.addListener(() {
+      if (refreshNotifier.value) {
+        setState(() {}); // Refresh UI
+        refreshNotifier.value = false; // Reset notifier
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showWelcomePopup();
     });

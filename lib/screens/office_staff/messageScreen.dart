@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../office_staff/refresh_notifier.dart';
 import '../../variables/ip_address.dart';
 import 'package:http/http.dart' as http;
 
@@ -199,9 +199,6 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
                 ),
               ),
             )
-
-
-
           ],
         ),
       ),
@@ -525,6 +522,7 @@ class _MessageDetailScreenState extends State<MessageDetailScreen> with SingleTi
           actions: [
             TextButton(
               onPressed: () {
+                refreshNotifier.value = true;
                 Navigator.of(context).pop(); // Dismiss the dialog
                 if (mounted) finishTransaction(); // Ensure finishTransaction is called only if the widget is still mounted
               },
